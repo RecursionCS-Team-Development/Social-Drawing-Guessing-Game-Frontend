@@ -1,6 +1,6 @@
 <template>
-  <div class="home">
-      <h1>Social Drawing Guessing Game Top</h1>
+  <div class="signIn">
+    <h1>This is an SingUp page</h1>
   </div>
 </template>
 
@@ -8,11 +8,8 @@
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'Home',
+  name: 'SignIn',
   components: {
   },
 });
 </script>
-
-<style>
-</style>
