@@ -52,7 +52,7 @@
                       </label>
                     </div>
 
-                    <div class="mx-4 mb-3 mb-lg-4">
+                    <div class="text-start mb-3 mb-lg-4">
                       <button type="button" class="btn btn-primary btn-lg">新規登録</button>
                       <div class="mt-5">
                         <p class="small fw-bold mt-2 pt-1 mb-0 text-end">
