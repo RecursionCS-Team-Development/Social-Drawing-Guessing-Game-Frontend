@@ -42,7 +42,7 @@
                       </div>
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
                       <!-- Checkbox -->
                       <div class="form-check mb-0">
                         <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3" />
@@ -53,7 +53,7 @@
 
                     </div>
 
-                    <div class="text-center text-lg-start mt-4 pt-2">
+                    <div class="text-start mb-3 mb-lg-4">
                       <button type="button" class="btn btn-primary btn-lg" style="padding-left: 2.5rem; padding-right: 2.5rem;">Login</button>
                       <div class="mt-4">
                         <p class="small fw-bold mt-2 pt-1 mb-0 text-end">
