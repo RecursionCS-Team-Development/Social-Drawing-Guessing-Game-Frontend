@@ -1,14 +1,16 @@
 <template>
-  <div id="app" class="SiteWrapper">
+  <div id="app">
     <header>
       <NavigationBar/>
     </header>
 
     <main>
-      <router-view class="center"/>
+      <router-view class="center SiteWrapper"/>
     </main>
 
-    <footer></footer>
+    <footer>
+      <p class="text-center">@2022 Social Drawing Guessing Game all rights reserved.</p>
+    </footer>
   </div>
 </template>
 
