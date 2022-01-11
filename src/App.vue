@@ -1,33 +1,35 @@
 <template>
   <div id="app">
     <header>
-      <NavigationBar/>
+      <NavigationBar />
     </header>
 
     <main>
-      <router-view class="center SiteWrapper"/>
+      <router-view class="center SiteWrapper" />
     </main>
 
     <footer>
-      <p class="text-center">@2022 Social Drawing Guessing Game all rights reserved.</p>
+      <p class="text-center">
+        @2022 Social Drawing Guessing Game all rights reserved.
+      </p>
     </footer>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import NavigationBar from './components/NavigationBar.vue';
+import { defineComponent } from 'vue'
+import NavigationBar from './components/NavigationBar.vue'
 
 export default defineComponent({
   name: 'App',
   components: {
-    NavigationBar,
-  },
-});
+    NavigationBar
+  }
+})
 </script>
 
 <style>
-.center{
+.center {
   height: calc(100vh - 70px);
   display: flex;
   align-items: center;
