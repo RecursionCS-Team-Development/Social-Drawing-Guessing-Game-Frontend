@@ -77,44 +77,43 @@ export default defineComponent({
     const change = () => (userInfo.value.login = !userInfo.value.login) //ログイン切り替え
 
     const initialPage = ['Home', 'LogIn', 'SignUp']
+    const logSignPage = ['LogIn', 'SignUp']
+    const homeLogItems = [
+      { name: 'ゲスト', link: '/lobby', color: '#000000' },
+      { name: 'ログイン', link: '/login', color: '#000000' },
+      { name: '新規登録', link: '/sign_up', color: '#2196F3' }
+    ]
+    const homeNotLogItems = [
+      { name: 'ロビーへ', link: '/lobby', color: '#000000' }
+    ]
+    const dropItems = [
+      { name: userInfo.value.name, link: '/myPage', color: '#000000' },
+      { name: '設定', link: '/settings', color: '#000000' },
+      { name: 'ログアウト', link: '/', color: '#000000' }
+    ]
 
     const setNavItems = computed(() => {
       let routeName = String(router.currentRoute.value.name)
 
-      if (routeName === 'Home' && userInfo.value.login == false) {
-        return [
-          { name: 'ゲスト', link: '/lobby', color: '#000000' },
-          { name: 'ログイン', link: '/login', color: '#000000' },
-          { name: '新規登録', link: '/sign_up', color: '#2196F3' }
-        ]
+      if (!logSignPage.includes(routeName) && userInfo.value.login == false) {
+        return homeLogItems
       } else if (routeName === 'Home' && userInfo.value.login == true) {
-        return [{ name: 'ロビーへ', link: '/lobby', color: '#000000' }]
-      } else if (
-        !initialPage.includes(routeName) &&
-        userInfo.value.login == false
-      ) {
-        return [
-          { name: 'ゲスト', link: '/lobby', color: '#000000' },
-          { name: 'ログイン', link: '/login', color: '#000000' },
-          { name: '新規登録', link: '/sign_up', color: '#2196F3' }
-        ]
+        return homeNotLogItems
       } else return []
     })
 
-    const setDropItems = computed(() => {
-      return [
-        { name: userInfo.value.name, link: '/myPage', color: '#000000' },
-        { name: '設定', link: '/settings', color: '#000000' },
-        { name: 'ログアウト', link: '/', color: '#000000' }
-      ]
-    })
+    const setDropItems = computed(() => dropItems)
 
     return {
       userInfo,
       change,
-      setNavItems,
       initialPage,
-      setDropItems
+      logSignPage,
+      setDropItems,
+      setNavItems,
+      homeLogItems,
+      homeNotLogItems,
+      dropItems
     }
   }
 })
