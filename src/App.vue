@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <header>
-      <NavigationBar />
+      <NavigationBar :user="user" />
     </header>
 
     <main>
@@ -17,13 +17,34 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, reactive } from 'vue'
 import NavigationBar from './components/NavigationBar.vue'
+
+interface User {
+  name: string
+  mail: string
+  password: string
+  img: string
+  login: boolean
+}
 
 export default defineComponent({
   name: 'App',
   components: {
     NavigationBar
+  },
+  setup() {
+    let user = reactive<User>({
+      name: 'ユーザー1',
+      mail: '@gmail.com',
+      password: '12345678',
+      img: 'https://4.bp.blogspot.com/-bTipX3Vmpts/Wn1ZgUbOHXI/AAAAAAABKM4/b31Jvq8aWssiswuiO19BAJmmAC5WAzXwACLcBGAs/s800/character_boy_normal.png',
+      login: false
+    })
+
+    return {
+      user
+    }
   }
 })
 </script>
