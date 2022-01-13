@@ -110,7 +110,7 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'SignIn',
+  name: 'SignUp',
   components: {}
 })
 </script>
