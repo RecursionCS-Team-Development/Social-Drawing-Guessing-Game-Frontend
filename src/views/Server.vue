@@ -1,5 +1,5 @@
 <template>
-  <section class="lobby h-100 mt-3 mt-md-0" style="background-color: #fff">
+  <section class="server h-100 mt-3 mt-md-0" style="background-color: #fff">
     <div class="container">
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
         <div class="col" v-for="(card, index) in cards" :key="index">
@@ -27,45 +27,45 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'Lobby',
+  name: 'Server',
   components: {},
   setup() {
     let cards = [
       {
-        name: 'サーバー1',
+        name: 'ロビー1',
         max: 6,
         now: 6,
-        link: '/server'
+        link: '/room'
       },
       {
-        name: 'サーバー2',
+        name: 'ロビー2',
         max: 6,
         now: 1,
-        link: '/server'
+        link: '/room'
       },
       {
-        name: 'サーバー3',
+        name: 'ロビー3',
         max: 6,
         now: 3,
-        link: '/server'
+        link: '/room'
       },
       {
-        name: 'サーバー4',
+        name: 'ロビー4',
         max: 6,
         now: 1,
-        link: '/server'
+        link: '/room'
       },
       {
-        name: 'サーバー5',
+        name: 'ロビー5',
         max: 6,
         now: 2,
-        link: '/server'
+        link: '/room'
       },
       {
-        name: 'サーバー6',
+        name: 'ロビー6',
         max: 6,
         now: 0,
-        link: '/server'
+        link: '/room'
       }
     ]
 
