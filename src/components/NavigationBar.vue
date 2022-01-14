@@ -119,7 +119,7 @@ export default defineComponent({
 })
 </script>
 
-<style>
+<style scoped>
 .avatar {
   vertical-align: middle;
   width: 50px;
