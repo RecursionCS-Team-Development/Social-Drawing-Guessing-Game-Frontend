@@ -5,7 +5,7 @@
     </header>
 
     <main>
-      <router-view class="center SiteWrapper" />
+      <router-view class="center SiteWrapper" :user="user" />
     </main>
 
     <footer>
@@ -25,6 +25,8 @@ interface User {
   mail: string
   password: string
   img: string
+  profile: string
+  twitterAccount: string
   login: boolean
 }
 
@@ -39,6 +41,8 @@ export default defineComponent({
       mail: '@gmail.com',
       password: '12345678',
       img: 'https://4.bp.blogspot.com/-bTipX3Vmpts/Wn1ZgUbOHXI/AAAAAAABKM4/b31Jvq8aWssiswuiO19BAJmmAC5WAzXwACLcBGAs/s800/character_boy_normal.png',
+      profile: 'よろしくお願いします',
+      twitterAccount: '',
       login: false
     })
 
