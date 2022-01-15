@@ -1,5 +1,8 @@
 <template>
-  <section class="settings py-5" style="background-color: #eee">
+  <section
+    class="settings py-5 justify-content-start"
+    style="background-color: #eee"
+  >
     <div class="container">
       <div
         class="row d-flex justify-content-md-around align-items-md-start align-items-center flex-md-row flex-column"
@@ -150,9 +153,4 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
-.settings {
-  height: auto;
-  min-height: auto;
-}
-</style>
+<style></style>
