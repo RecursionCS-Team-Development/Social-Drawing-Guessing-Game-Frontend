@@ -31,6 +31,7 @@
             id="dropdownMenuButton1"
             data-bs-toggle="dropdown"
             aria-expanded="false"
+            style="width: 50px; height: 50px"
           >
             <img class="avatar" :src="user.img" alt="Avatar" />
           </div>

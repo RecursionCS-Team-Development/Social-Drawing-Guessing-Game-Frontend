@@ -9,9 +9,13 @@
     </main>
 
     <footer>
-      <p class="text-center">
-        @2022 Social Drawing Guessing Game all rights reserved.
-      </p>
+      <div class="py-2">
+        <div class="container">
+          <p class="m-0 rem0p8">
+            @2022 Social Drawing Guessing Game all rights reserved.
+          </p>
+        </div>
+      </div>
     </footer>
   </div>
 </template>
@@ -55,10 +59,16 @@ export default defineComponent({
 
 <style>
 .center {
-  height: calc(100vh - 70px);
+  min-height: calc(100vh - 120px);
   display: flex;
   align-items: center;
+  flex-direction: column;
   justify-content: center;
+}
+@media screen and (max-width: 768px) {
+  .center {
+    min-height: calc(100vh - 130px);
+  }
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -66,12 +76,6 @@ export default defineComponent({
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-}
-
-.SiteWrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
 }
 
 main {
