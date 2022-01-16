@@ -25,9 +25,7 @@
                   <form class="mx-1 mx-md-4">
                     <AuthLoginButton
                       v-for="(ele, index) in auths"
-                      :icon="ele.icon"
-                      :color="ele.color"
-                      :text="ele.text"
+                      :post="ele"
                       :key="index"
                     />
 
@@ -35,9 +33,7 @@
 
                     <InputText
                       v-for="(ele, index) in inputs"
-                      :icon="ele.icon"
-                      :inputType="ele.inputType"
-                      :placeholder="ele.placeholder"
+                      :post="ele"
                       :key="index"
                     />
 

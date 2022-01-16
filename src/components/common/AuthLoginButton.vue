@@ -5,29 +5,27 @@ import defineComponent from 'vue';
       type="button"
       class="btn btn-lg w-100 text-light"
       style="padding-right: 2.5rem; background-color: "
-      :style="color"
+      :style="post.color"
     >
-      <i class="fab" :class="icon" style="padding-right: 2.5rem"></i>
-      {{ text }}でログイン
+      <i class="fab" :class="post.icon" style="padding-right: 2.5rem"></i>
+      {{ post.text }}でログイン
     </button>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, PropType } from 'vue'
+
+interface Props {
+  icon: string
+  color: string
+  text: string
+}
 
 export default defineComponent({
   props: {
-    icon: {
-      type: String,
-      required: true
-    },
-    color: {
-      type: String,
-      required: true
-    },
-    text: {
-      type: String,
+    post: {
+      type: Object as PropType<Props>,
       required: true
     }
   },

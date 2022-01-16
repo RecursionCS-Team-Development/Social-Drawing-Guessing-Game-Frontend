@@ -16,9 +16,7 @@
                   <form class="mx-1 mx-md-4">
                     <InputText
                       v-for="(ele, index) in inputs"
-                      :icon="ele.icon"
-                      :inputType="ele.inputType"
-                      :placeholder="ele.placeholder"
+                      :props="ele"
                       :key="index"
                     />
 
@@ -77,7 +75,7 @@ export default defineComponent({
     ConfirmButton
   },
   setup() {
-    const inputs = [
+    const inputs: { icon: string; inputType: string; placeholder: string }[] = [
       {
         icon: 'fa-user',
         inputType: 'text',

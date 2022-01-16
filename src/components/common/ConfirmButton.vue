@@ -13,9 +13,7 @@ import defineComponent from 'vue';
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  props: {
-    text: String
-  },
+  props: { text: String },
   name: 'ConfirmButton'
 })
 </script>
