@@ -16,7 +16,7 @@
                   <form class="mx-1 mx-md-4">
                     <InputText
                       v-for="(ele, index) in inputs"
-                      :props="ele"
+                      :post="ele"
                       :key="index"
                     />
 
