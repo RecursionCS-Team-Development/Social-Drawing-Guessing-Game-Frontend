@@ -15,6 +15,31 @@ const routes: Array<RouteRecordRaw> = [
     path: '/sign_up',
     name: 'SignUp',
     component: () => import('../views/SignUp.vue')
+  },
+  {
+    path: '/room',
+    name: 'Room',
+    component: () => import('../views/Room.vue')
+  },
+  {
+    path: '/lobby',
+    name: 'Lobby',
+    component: () => import('../views/Lobby.vue')
+  },
+  {
+    path: '/myPage',
+    name: 'MyPage',
+    component: () => import('../views/MyPage.vue')
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    component: () => import('../views/Settings.vue')
+  },
+  {
+    path: '/server',
+    name: 'Server',
+    component: () => import('../views/Server.vue')
   }
 ]
 
