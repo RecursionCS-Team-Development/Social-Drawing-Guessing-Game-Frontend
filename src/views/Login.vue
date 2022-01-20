@@ -35,6 +35,7 @@
                       v-for="(ele, index) in inputs"
                       :post="ele"
                       :key="index"
+                      :v-model="ele.text"
                     />
 
                     <div
@@ -55,7 +56,7 @@
                     </div>
 
                     <div class="text-center mb-3 mb-lg-4">
-                      <ConfirmButton :text="confirm" />
+                      <ConfirmButton :text="confirm" @click="loginSubmit" />
 
                       <div class="mt-4">
                         <p class="small fw-bold mt-2 pt-1 mb-0 text-end">
@@ -85,10 +86,18 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, reactive } from 'vue'
 import InputText from './../components/common/InputText.vue'
 import AuthLoginButton from './../components/common/AuthLoginButton.vue'
 import ConfirmButton from './../components/common/ConfirmButton.vue'
+import AccountApiService from '../services/apiService'
+
+interface InputTextInterface {
+  icon: string
+  inputType: string
+  placeholder: string
+  text: string
+}
 
 export default defineComponent({
   name: 'Login',
@@ -110,24 +119,35 @@ export default defineComponent({
         text: 'Google'
       }
     ]
-    const inputs: { icon: string; inputType: string; placeholder: string }[] = [
+    const inputs: InputTextInterface[] = reactive([
       {
         icon: 'fa-envelope',
         inputType: 'email',
-        placeholder: 'Type Your Email'
+        placeholder: 'Type Your Email',
+        text: 'recursion_teamdev@recursion.com'
       },
       {
         icon: 'fa-lock',
         inputType: 'password',
-        placeholder: 'Type Your Password'
+        placeholder: 'Type Your Password',
+        text: 'recursion2022'
       }
-    ]
+    ])
     const confirm = 'Login'
+
+    const loginSubmit = async () => {
+      let email = inputs[0].text
+      let password = inputs[1].text
+
+      const res = await AccountApiService.getApiLogin(email, password)
+      console.log(res.data)
+    }
 
     return {
       auths,
       inputs,
-      confirm
+      confirm,
+      loginSubmit
     }
   }
 })
