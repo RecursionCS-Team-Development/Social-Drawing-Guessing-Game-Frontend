@@ -129,13 +129,13 @@ export default defineComponent({
         icon: 'fa-envelope',
         inputType: 'email',
         placeholder: 'Type Your Email',
-        text: 'recursion_teamdev@recursion.com'
+        text: ''
       },
       {
         icon: 'fa-lock',
         inputType: 'password',
         placeholder: 'Type Your Password',
-        text: 'recursion2022'
+        text: ''
       }
     ])
     const confirm = 'Login'
