@@ -56,10 +56,6 @@ export default defineComponent({
       console.log(temp)
     }
 
-    onMounted(() => {
-      getApi()
-    })
-
     return {
       user,
       getApi
