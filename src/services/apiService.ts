@@ -6,12 +6,19 @@ class AccountApiService {
   getApiRoot(): Promise<any> {
     return http.get(this._auth)
   }
-  getApiLogin(email: string, password: string): Promise<any> {
+  login(email: string, password: string): Promise<any> {
     const data = {
       email,
       password
     }
     return http.post(this._auth + 'jwt/create', data)
+  }
+  getUser(token: string): Promise<any> {
+    return http.get(this._auth + 'user', {
+      headers: {
+        Authorization: 'JWT ' + token
+      }
+    })
   }
 }
 

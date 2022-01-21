@@ -1,6 +1,11 @@
 <template>
   <section class="login h-100" style="background-color: #eee">
     <div class="container h-100">
+      <!-- Error Message -->
+      <div v-if="true" class="alert alert-danger mt-3" role="alert">
+        ログインまたはパスワードが違います
+      </div>
+
       <div
         class="row d-flex justify-content-center align-items-center h-100 my-4"
       >
@@ -139,8 +144,14 @@ export default defineComponent({
       let email = inputs[0].text
       let password = inputs[1].text
 
-      const res = await AccountApiService.getApiLogin(email, password)
-      console.log(res.data)
+      try {
+        const res = await AccountApiService.login(email, password)
+        console.log(res.data['access'])
+        const user = await AccountApiService.getUser(res.data['access'])
+        console.log(user.data.results[0])
+      } catch (error) {
+        console.log(error)
+      }
     }
 
     return {
