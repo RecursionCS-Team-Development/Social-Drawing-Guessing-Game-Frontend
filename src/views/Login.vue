@@ -23,61 +23,19 @@
                   </p>
 
                   <form class="mx-1 mx-md-4">
-                    <!-- twitterでログイン -->
-                    <div class="mb-4">
-                      <button
-                        type="button"
-                        class="btn btn-lg w-100 text-light"
-                        style="padding-right: 2.5rem; background-color: #1da1f2"
-                      >
-                        <i
-                          class="fab fa-twitter"
-                          style="padding-right: 2.5rem"
-                        ></i
-                        >Twitterでログイン
-                      </button>
-                    </div>
-
-                    <!-- googleでログイン -->
-                    <div class="mb-4">
-                      <button
-                        type="button"
-                        class="btn btn-lg w-100 text-light"
-                        style="padding-right: 2.5rem; background-color: #db4437"
-                      >
-                        <i
-                          class="fab fa-google"
-                          style="padding-right: 2.5rem"
-                        ></i
-                        >Googleでログイン
-                      </button>
-                    </div>
+                    <AuthLoginButton
+                      v-for="(ele, index) in auths"
+                      :post="ele"
+                      :key="index"
+                    />
 
                     <div class="dropdown-divider mb-3"></div>
 
-                    <div class="d-flex flex-row align-items-center mb-4">
-                      <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
-                      <div class="form-outline flex-fill mb-0">
-                        <input
-                          type="email"
-                          id="form3Example3c"
-                          class="form-control"
-                          placeholder="Your Email"
-                        />
-                      </div>
-                    </div>
-
-                    <div class="d-flex flex-row align-items-center mb-4">
-                      <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
-                      <div class="form-outline flex-fill mb-0">
-                        <input
-                          type="password"
-                          id="form3Example4c"
-                          class="form-control"
-                          placeholder="Password"
-                        />
-                      </div>
-                    </div>
+                    <InputText
+                      v-for="(ele, index) in inputs"
+                      :post="ele"
+                      :key="index"
+                    />
 
                     <div
                       class="d-flex justify-content-between align-items-center mb-3"
@@ -96,14 +54,9 @@
                       </div>
                     </div>
 
-                    <div class="text-start mb-3 mb-lg-4">
-                      <button
-                        type="button"
-                        class="btn btn-primary btn-lg"
-                        style="padding-left: 2.5rem; padding-right: 2.5rem"
-                      >
-                        Login
-                      </button>
+                    <div class="text-center mb-3 mb-lg-4">
+                      <ConfirmButton :text="confirm" />
+
                       <div class="mt-4">
                         <p class="small fw-bold mt-2 pt-1 mb-0 text-end">
                           新規登録は<router-link
@@ -133,9 +86,49 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import InputText from './../components/common/InputText.vue'
+import AuthLoginButton from './../components/common/AuthLoginButton.vue'
+import ConfirmButton from './../components/common/ConfirmButton.vue'
 
 export default defineComponent({
   name: 'Login',
-  components: {}
+  components: {
+    AuthLoginButton,
+    InputText,
+    ConfirmButton
+  },
+  setup() {
+    const auths: { icon: string; color: string; text: string }[] = [
+      {
+        icon: 'fa-twitter',
+        color: 'background-color: #1da1f2',
+        text: 'Twitter'
+      },
+      {
+        icon: 'fa-google',
+        color: 'background-color: #db4437',
+        text: 'Google'
+      }
+    ]
+    const inputs: { icon: string; inputType: string; placeholder: string }[] = [
+      {
+        icon: 'fa-envelope',
+        inputType: 'email',
+        placeholder: 'Type Your Email'
+      },
+      {
+        icon: 'fa-lock',
+        inputType: 'password',
+        placeholder: 'Type Your Password'
+      }
+    ]
+    const confirm = 'Login'
+
+    return {
+      auths,
+      inputs,
+      confirm
+    }
+  }
 })
 </script>

@@ -9,9 +9,13 @@
     </main>
 
     <footer>
-      <p class="text-center">
-        @2022 Social Drawing Guessing Game all rights reserved.
-      </p>
+      <div class="py-2">
+        <div class="container">
+          <p class="m-0 rem0p8">
+            @2022 Social Drawing Guessing Game all rights reserved.
+          </p>
+        </div>
+      </div>
     </footer>
   </div>
 </template>
@@ -19,6 +23,7 @@
 <script lang="ts">
 import { defineComponent, reactive } from 'vue'
 import NavigationBar from './components/NavigationBar.vue'
+import http from './http_common'
 
 interface User {
   name: string
@@ -46,8 +51,14 @@ export default defineComponent({
       login: false
     })
 
+    const getApi = async () => {
+      const temp = await http.get('api/auth')
+      console.log(temp)
+    }
+
     return {
-      user
+      user,
+      getApi
     }
   }
 })
@@ -55,10 +66,16 @@ export default defineComponent({
 
 <style>
 .center {
-  height: calc(100vh - 70px);
+  min-height: calc(100vh - 120px);
   display: flex;
   align-items: center;
+  flex-direction: column;
   justify-content: center;
+}
+@media screen and (max-width: 768px) {
+  .center {
+    min-height: calc(100vh - 130px);
+  }
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -66,12 +83,6 @@ export default defineComponent({
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-}
-
-.SiteWrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
 }
 
 main {
