@@ -1,7 +1,12 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid container">
-      <router-link class="navbar-brand" to="/">Draw</router-link>
+      <router-link
+        class="navbar-brand d-flex align-items-center"
+        to="/"
+        style="width: 50px; height: 50px"
+        ><img src="../../public/logo.png" alt="logo" style="width: 70px"
+      /></router-link>
       <button
         class="navbar-toggler"
         type="button"
