@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, reactive } from 'vue'
+import { defineComponent, reactive } from 'vue'
 import NavigationBar from './components/NavigationBar.vue'
 
 interface User {
