@@ -3,6 +3,7 @@
     <div class="d-flex justify-content-around">
       <button @click="save">Save</button>
       <button @click="load">Load</button>
+      <button @click="pen">Pen</button>
       <input
         @change="setColor"
         type="color"
@@ -49,6 +50,7 @@ export default defineComponent({
     let colorPalette = ref<HTMLInputElement>()
     let lineWidth = ref(10)
     let drawColor = ref('#000000')
+    const eraserColor = ref('rgb(238,238,238)')
 
     let canvas1 = reactive<Canvas>({
       canvas: undefined
@@ -102,18 +104,23 @@ export default defineComponent({
       canvas1.canvas?.loadFromJSON(canvasState, () => console.log('loaded!!'))
     }
 
+    const pen = () => {
+      let brush = canvas1.canvas?.freeDrawingBrush
+      if (brush?.color) brush.color = drawColor.value
+    }
+
     const clear = () => {
       canvas1.canvas?.clear()
     }
 
     const eraser = () => {
-      var brush = canvas1.canvas?.freeDrawingBrush
-      if (brush?.color) brush.color = 'rgb(238,238,238)'
+      let brush = canvas1.canvas?.freeDrawingBrush
+      if (brush?.color) brush.color = eraserColor.value
     }
 
     const setColor = () => {
       drawColor.value = String(colorPalette?.value?.value)
-      var brush = canvas1.canvas?.freeDrawingBrush
+      let brush = canvas1.canvas?.freeDrawingBrush
       if (brush?.color) brush.color = drawColor.value
     }
 
@@ -121,9 +128,11 @@ export default defineComponent({
       lineWidth,
       colorPalette,
       drawColor,
+      eraserColor,
       canvasRef,
       save,
       load,
+      pen,
       clear,
       eraser,
       setColor
