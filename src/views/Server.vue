@@ -3,7 +3,7 @@
     <div class="container">
       <div class="d-flex justify-content-center align-items-center mt-5">
         <button @click.prevent="openModal" class="btn btn-warning">
-          ルームの作成
+          ルーム作成
           <i class="fas fa-plus"></i>
         </button>
       </div>
@@ -36,74 +36,90 @@
           <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLabel">ルーム作成</h5>
           </div>
-          <div class="modal-body">
-            <div
-              v-for="(input, index) in inputs"
-              :key="index"
-              class="row d-flex flex-row align-items-center mb-4"
-            >
-              <label class="col-sm-4 m-auto pe-3">{{ input.label }}</label>
-              <div class="col-sm-8 form-outline flex-fill mb-0">
-                <input
-                  v-model="input.text"
-                  :type="input.type"
-                  @input="input.method"
-                  :placeholder="input.placeholder"
-                  class="form-control"
-                />
-              </div>
-            </div>
-
-            <div
-              v-for="(select, index) in selects"
-              :key="index"
-              class="row d-flex flex-row align-items-center mb-4"
-            >
-              <label class="col-sm-4 m-auto pe-3">{{ select.label }}</label>
-              <div class="col-sm-8 form-outline flex-fill mb-0">
-                <select
-                  v-model="select.selected"
-                  @change="select.method"
-                  class="form-select"
-                  aria-label="Default select example"
+          <form>
+            <div class="modal-body">
+              <div v-for="(input, index) in inputs" :key="index" class="">
+                <div
+                  v-if="input.alert"
+                  class="alert alert-warning mb-2 p-1"
+                  role="alert"
                 >
-                  <option
-                    v-for="(option, index) in select.options"
-                    :key="index"
-                    :value="option"
-                  >
-                    {{ option }}
-                  </option>
-                </select>
+                  {{ input.alertText }}
+                </div>
+                <div class="row d-flex flex-row align-items-center mb-4">
+                  <label class="col-sm-4 m-auto pe-3">{{ input.label }}</label>
+                  <div class="col-sm-8 form-outline flex-fill mb-0">
+                    <input
+                      v-model="input.text"
+                      :type="input.type"
+                      @input="input.method"
+                      :placeholder="input.placeholder"
+                      class="form-control"
+                      required="true"
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div class="d-flex flex-row align-items-center mb-4">
-              <label class="col-sm-4 m-auto pe-3">ラウンド</label>
-              <div class="col-sm-8 form-outline flex-fill mb-0">
-                <label for="customRange1" class="form-label">
-                  {{ optionRounds.value }}
-                </label>
-                <input
-                  v-model="optionRounds.value"
-                  :min="optionRounds.min"
-                  :max="optionRounds.max"
-                  @change="optionRounds.method"
-                  type="range"
-                  class="form-range"
-                  id="customRange1"
-                />
+              <div
+                v-for="(select, index) in selects"
+                :key="index"
+                class="row d-flex flex-row align-items-center mb-4"
+              >
+                <label class="col-sm-4 m-auto pe-3">{{ select.label }}</label>
+                <div class="col-sm-8 form-outline flex-fill mb-0">
+                  <select
+                    v-model="select.selected"
+                    @change="select.method"
+                    class="form-select"
+                    aria-label="Default select example"
+                  >
+                    <option
+                      v-for="(option, index) in select.options"
+                      :key="index"
+                      :value="option"
+                    >
+                      {{ option }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="d-flex flex-row align-items-center mb-4">
+                <label class="col-sm-4 m-auto pe-3">ラウンド</label>
+                <div class="col-sm-8 form-outline flex-fill mb-0">
+                  <label for="customRange1" class="form-label">
+                    {{ optionRounds.value }}
+                  </label>
+                  <input
+                    v-model="optionRounds.value"
+                    :min="optionRounds.min"
+                    :max="optionRounds.max"
+                    @change="optionRounds.method"
+                    type="range"
+                    class="form-range"
+                    id="customRange1"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-          <div class="modal-footer">
-            <button @click="closeModal" type="button" class="btn btn-secondary">
-              キャンセル
-            </button>
-            <button @click="confirmRoom" type="button" class="btn btn-primary">
-              作成
-            </button>
-          </div>
+            <div class="modal-footer">
+              <button
+                @click="closeModal"
+                type="button"
+                class="btn btn-secondary"
+              >
+                キャンセル
+              </button>
+              <button
+                @click="confirmRoom"
+                type="button"
+                class="btn btn-primary"
+              >
+                作成
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -112,7 +128,6 @@
 
 <script lang="ts">
 import { defineComponent, toRef, reactive, ref } from 'vue'
-
 interface User {
   name: string
   mail: string
@@ -162,6 +177,7 @@ export default defineComponent({
     let showModal = ref(false)
     let userInfo = toRef(props, 'user')
     let room = new Room()
+    const confirm = '作成'
 
     const inputsName = () => (room.name = inputs[0].text)
     const inputsPassword = () => (room.password = inputs[1].text)
@@ -175,6 +191,8 @@ export default defineComponent({
       label: string
       type: string
       placeholder: string
+      alert: boolean
+      alertText: string
       method: () => void
     }[] = reactive([
       {
@@ -182,6 +200,8 @@ export default defineComponent({
         label: 'ルーム名',
         type: 'text',
         placeholder: 'ルーム名',
+        alert: false,
+        alertText: 'ルーム名は必須です',
         method: inputsName
       },
       {
@@ -189,6 +209,8 @@ export default defineComponent({
         label: 'パスワード',
         type: 'text',
         placeholder: 'password',
+        alert: false,
+        alertText: '',
         method: inputsPassword
       }
     ])
@@ -239,17 +261,18 @@ export default defineComponent({
     }
 
     const confirmRoom = () => {
-      if (room.name === '') console.log('ありません')
+      if (room.name === '') inputs[0].alert = true
       else {
+        showModal.value = false
         rooms.push(Object.assign({}, room))
         room.initialize()
         initializeForm()
-        showModal.value = false
       }
     }
 
     const initializeForm = () => {
       inputs[0].text = room.name
+      inputs[0].alert = false
       inputs[1].text = room.password
       selects[0].selected = room.entryNum
       selects[1].selected = room.mode
@@ -267,6 +290,7 @@ export default defineComponent({
       rooms,
       optionRounds,
       room,
+      confirm,
       confirmRoom,
       inputsName,
       inputsPassword,
