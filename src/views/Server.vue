@@ -7,7 +7,7 @@
           <i class="fas fa-plus"></i>
         </button>
       </div>
-      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 mt-5">
+      <div class="row row-cols-2 row-cols-md-3 g-4 mt-2 mt-sm-5">
         <template v-if="rooms.length">
           <div class="col" v-for="(room, index) in rooms" :key="index">
             <router-link
@@ -15,9 +15,7 @@
               tag="div"
               class="card rounded routerLink"
             >
-              <div
-                class="card-body d-flex justify-content-around align-items-center d-sm-block"
-              >
+              <div class="card-body d-block p-2 p-sm-4">
                 <h5 class="card-title">{{ room.name }}</h5>
                 <p class="mb-1">{{ room.mode }}</p>
                 <p class="mb-1">{{ room.level }}</p>
@@ -46,7 +44,9 @@
                 >
                   {{ input.alertText }}
                 </div>
-                <div class="row d-flex flex-row align-items-center mb-4">
+                <div
+                  class="row d-flex flex-row align-items-center mb-2 mb-sm-4"
+                >
                   <label class="col-sm-4 m-auto pe-3">{{ input.label }}</label>
                   <div class="col-sm-8 form-outline flex-fill mb-0">
                     <input
@@ -64,7 +64,7 @@
               <div
                 v-for="(select, index) in selects"
                 :key="index"
-                class="row d-flex flex-row align-items-center mb-4"
+                class="row d-flex flex-row align-items-center mb-2 mb-sm-4"
               >
                 <label class="col-sm-4 m-auto pe-3">{{ select.label }}</label>
                 <div class="col-sm-8 form-outline flex-fill mb-0">
@@ -85,10 +85,10 @@
                 </div>
               </div>
 
-              <div class="d-flex flex-row align-items-center mb-4">
+              <div class="row d-flex flex-row align-items-center mb-2 mb-sm-4">
                 <label class="col-sm-4 m-auto pe-3">ラウンド</label>
-                <div class="col-sm-8 form-outline flex-fill mb-0">
-                  <label for="customRange1" class="form-label">
+                <div class="col-sm-8 form-outline d-flex d-sm-block mb-0">
+                  <label for="customRange1" class="form-label pe-3 pe-sm-0">
                     {{ optionRounds.value }}
                   </label>
                   <input
@@ -103,21 +103,18 @@
                 </div>
               </div>
             </div>
-            <div class="modal-footer">
-              <button
+            <div class="modal-footer row d-flex justify-content-around">
+              <CancelButton
                 @click="closeModal"
-                type="button"
-                class="btn btn-secondary"
-              >
-                キャンセル
-              </button>
-              <button
-                @click="confirmRoom"
-                type="button"
-                class="btn btn-primary"
-              >
-                作成
-              </button>
+                :text="cancelBtnText"
+                class="p-1 col-sm-5 col-8"
+              />
+              <ConfirmButton
+                @click="confirmRoom(user)"
+                :text="confirmBtnText"
+                :room="room"
+                class="p-1 col-sm-5 col-8"
+              />
             </div>
           </form>
         </div>
@@ -127,7 +124,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRef, reactive, ref } from 'vue'
+import { defineComponent, reactive, ref, PropType } from 'vue'
+import router from '../router'
+import ConfirmButton from '../components/common/ConfirmButton.vue'
+import CancelButton from '../components/common/CancelButton.vue'
+
 interface User {
   name: string
   mail: string
@@ -139,14 +140,14 @@ interface User {
 }
 
 class Room {
-  public name: string
-  public password: string
-  public entryNum: number
-  public mode: string
-  public level: string
-  public round: number
-  public participants: User[]
-  public link: string
+  private name: string
+  private password: string
+  private entryNum: number
+  private mode: string
+  private level: string
+  private round: number
+  private participants: User[]
+  private link: string
 
   constructor() {
     this.name = ''
@@ -166,25 +167,97 @@ class Room {
     this.mode = '絵当てゲーム'
     this.level = 'medium'
     this.round = 5
+    this.participants = []
+  }
+
+  public setName(name: string) {
+    this.name = name
+  }
+
+  public getName(): string {
+    return this.name
+  }
+
+  public setPassword(password: string) {
+    this.password = password
+  }
+
+  public getPassword(): string {
+    return this.password
+  }
+
+  public setEntryNum(entryNum: number) {
+    this.entryNum = entryNum
+  }
+
+  public getEntryNum(): number {
+    return this.entryNum
+  }
+
+  public setMode(mode: string) {
+    this.mode = mode
+  }
+
+  public getMode(): string {
+    return this.mode
+  }
+
+  public setLevel(level: string) {
+    this.level = level
+  }
+
+  public getLevel(): string {
+    return this.level
+  }
+
+  public setRound(round: number) {
+    this.round = round
+  }
+
+  public getRound(): number {
+    return this.round
+  }
+
+  public setParticipants(participants: User[]) {
+    this.participants = participants
+  }
+
+  public getParticipants(): User[] {
+    return this.participants
+  }
+
+  public setLink(link: string) {
+    this.link = link
+  }
+
+  public getLink(): string {
+    return this.link
+  }
+
+  public addUser(user: User) {
+    this.participants.push(user)
   }
 }
 
 export default defineComponent({
   name: 'Server',
-  components: {},
-  props: ['user'],
-  setup(props) {
+  components: { ConfirmButton, CancelButton },
+  props: {
+    user: Object as PropType<User>
+  },
+  setup() {
     let showModal = ref(false)
-    let userInfo = toRef(props, 'user')
     let room = new Room()
-    const confirm = '作成'
 
-    const inputsName = () => (room.name = inputs[0].text)
-    const inputsPassword = () => (room.password = inputs[1].text)
-    const selectEntryNum = () => (room.entryNum = Number(selects[0].selected))
-    const selectMode = () => (room.mode = String(selects[1].selected))
-    const selectLevel = () => (room.level = String(selects[2].selected))
-    const roundValue = () => (room.round = Number(optionRounds.value))
+    const confirmBtnText = '作成'
+    const cancelBtnText = 'キャンセル'
+
+    const inputsName = () => room.setName(inputs[0].text)
+    const inputsPassword = () => room.setPassword(inputs[1].text)
+    const selectEntryNum = () => room.setEntryNum(Number(selects[0].selected))
+    const selectMode = () => room.setMode(String(selects[1].selected))
+    const selectLevel = () => room.setLevel(String(selects[2].selected))
+    const roundValue = () => room.setRound(Number(optionRounds.value))
 
     const inputs: {
       text: string
@@ -196,7 +269,7 @@ export default defineComponent({
       method: () => void
     }[] = reactive([
       {
-        text: room.name,
+        text: room.getName(),
         label: 'ルーム名',
         type: 'text',
         placeholder: 'ルーム名',
@@ -205,7 +278,7 @@ export default defineComponent({
         method: inputsName
       },
       {
-        text: room.password,
+        text: room.getPassword(),
         label: 'パスワード',
         type: 'text',
         placeholder: 'password',
@@ -222,19 +295,19 @@ export default defineComponent({
       method: () => void
     }[] = [
       {
-        selected: room.entryNum,
+        selected: room.getEntryNum(),
         options: [2, 3, 4, 5, 6],
         label: '参加人数',
         method: selectEntryNum
       },
       {
-        selected: room.mode,
+        selected: room.getMode(),
         options: ['絵当てゲーム', '伝言ゲーム'],
         label: 'モード',
         method: selectMode
       },
       {
-        selected: room.level,
+        selected: room.getLevel(),
         options: ['hard', 'medium', 'easy'],
         label: 'レベル',
         method: selectLevel
@@ -247,7 +320,7 @@ export default defineComponent({
       max: number
       method: () => void
     } = reactive({
-      value: room.round,
+      value: room.getRound(),
       min: 1,
       max: 10,
       method: roundValue
@@ -260,36 +333,40 @@ export default defineComponent({
       initializeForm()
     }
 
-    const confirmRoom = () => {
-      if (room.name === '') inputs[0].alert = true
+    const confirmRoom = (user: User) => {
+      if (room.getName() === '') inputs[0].alert = true
       else {
         showModal.value = false
+        room.addUser(user)
+
         rooms.push(Object.assign({}, room))
+        router.push({ name: 'Room', params: { index: rooms.length } })
         room.initialize()
         initializeForm()
       }
     }
 
     const initializeForm = () => {
-      inputs[0].text = room.name
+      inputs[0].text = room.getName()
       inputs[0].alert = false
-      inputs[1].text = room.password
-      selects[0].selected = room.entryNum
-      selects[1].selected = room.mode
-      selects[2].selected = room.level
-      optionRounds.value = room.round
+      inputs[1].text = room.getPassword()
+      selects[0].selected = room.getEntryNum()
+      selects[1].selected = room.getMode()
+      selects[2].selected = room.getLevel()
+      optionRounds.value = room.getRound()
     }
 
     let rooms: Room[] = reactive([])
 
     return {
       showModal,
-      userInfo,
       inputs,
       selects,
       rooms,
       optionRounds,
       room,
+      confirmBtnText,
+      cancelBtnText,
       confirm,
       confirmRoom,
       inputsName,
@@ -324,10 +401,20 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  max-width: 80%;
+  max-height: 80%;
   padding: 32px;
   background-color: #fff;
   border-radius: 4px;
   transform: translate(-50%, -50%);
+  overflow: auto;
+}
+
+@media screen and (max-width: 768px) {
+  .modal-box {
+    width: 75%;
+    padding: 12px;
+  }
 }
 
 .routerLink {
