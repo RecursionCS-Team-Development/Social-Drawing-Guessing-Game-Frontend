@@ -1,122 +1,108 @@
 <template>
   <section class="server h-100 mt-3 mt-md-0" style="background-color: #fff">
     <div class="container">
-      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
-        <div class="col" v-for="(card, index) in cards" :key="index">
-          <router-link
-            :to="card.link"
-            tag="div"
-            class="card rounded routerLink"
-          >
-            <div
-              class="card-body d-flex justify-content-around align-items-center d-sm-block"
+      <div class="d-flex justify-content-center align-items-center mt-5">
+        <button @click.prevent="openModal" class="btn btn-warning">
+          ルームの作成
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 mt-5">
+        <template v-if="rooms.length">
+          <div class="col" v-for="(room, index) in rooms" :key="index">
+            <router-link
+              :to="room.link"
+              tag="div"
+              class="card rounded routerLink"
             >
-              <h5 class="card-title">{{ card.name }}</h5>
-              <p class="card-text text-end mt-sm-5">
-                {{ card.now }} / {{ card.max }}
-              </p>
-            </div>
-          </router-link>
-        </div>
-        <div
-          class="d-flex justify-content-center align-items-center"
-          data-bs-toggle="modal"
-          data-bs-target="#exampleModal"
-        >
-          <button class="btn btn-warning">
-            <i class="fas fa-plus"></i>
-          </button>
-        </div>
+              <div
+                class="card-body d-flex justify-content-around align-items-center d-sm-block"
+              >
+                <h5 class="card-title">{{ room.name }}</h5>
+                <p class="mb-1">{{ room.mode }}</p>
+                <p class="mb-1">{{ room.level }}</p>
+                <p class="mb-1">{{ room.round }}</p>
+                <p class="card-text text-end mt-sm-2">
+                  {{ room.participants.length }} / {{ room.entryNum }}
+                </p>
+              </div>
+            </router-link>
+          </div>
+        </template>
       </div>
       <!-- Modal -->
-      <div
-        class="modal fade"
-        id="exampleModal"
-        data-bs-backdrop="static"
-        data-bs-keyboard="false"
-        tabindex="-1"
-        aria-labelledby="exampleModalLabel"
-        aria-hidden="true"
-      >
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">ルーム作成</h5>
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
+      <div v-show="showModal" id="overlay">
+        <div class="modal-box">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">ルーム作成</h5>
+          </div>
+          <div class="modal-body">
+            <div
+              v-for="(input, index) in inputs"
+              :key="index"
+              class="row d-flex flex-row align-items-center mb-4"
+            >
+              <label class="col-sm-4 m-auto pe-3">{{ input.label }}</label>
+              <div class="col-sm-8 form-outline flex-fill mb-0">
+                <input
+                  v-model="input.text"
+                  :type="input.type"
+                  @input="input.method"
+                  :placeholder="input.placeholder"
+                  class="form-control"
+                />
+              </div>
             </div>
 
-            <div class="modal-body">
-              <div
-                v-for="(input, index) in inputs"
-                :key="index"
-                class="row d-flex flex-row align-items-center mb-4"
-              >
-                <label class="col-sm-4 m-auto pe-3">{{ input.label }}</label>
-                <div class="col-sm-8 form-outline flex-fill mb-0">
-                  <input
-                    v-model="input.text"
-                    :type="input.type"
-                    class="form-control"
-                    :placeholder="input.placeholder"
-                  />
-                </div>
-              </div>
-
-              <div
-                v-for="(select, index) in selects"
-                :key="index"
-                class="row d-flex flex-row align-items-center mb-4"
-              >
-                <label class="col-sm-4 m-auto pe-3">{{ select.label }}</label>
-                <div class="col-sm-8 form-outline flex-fill mb-0">
-                  <select
-                    v-model="select.selected"
-                    class="form-select"
-                    aria-label="Default select example"
+            <div
+              v-for="(select, index) in selects"
+              :key="index"
+              class="row d-flex flex-row align-items-center mb-4"
+            >
+              <label class="col-sm-4 m-auto pe-3">{{ select.label }}</label>
+              <div class="col-sm-8 form-outline flex-fill mb-0">
+                <select
+                  v-model="select.selected"
+                  @change="select.method"
+                  class="form-select"
+                  aria-label="Default select example"
+                >
+                  <option
+                    v-for="(option, index) in select.options"
+                    :key="index"
+                    :value="option"
                   >
-                    <option
-                      v-for="(option, index) in select.options"
-                      :key="index"
-                      :value="option"
-                    >
-                      {{ option }}
-                    </option>
-                  </select>
-                </div>
+                    {{ option }}
+                  </option>
+                </select>
               </div>
+            </div>
 
-              <div class="d-flex flex-row align-items-center mb-4">
-                <label class="col-sm-4 m-auto pe-3">ラウンド</label>
-                <div class="col-sm-8 form-outline flex-fill mb-0">
-                  <label for="customRange1" class="form-label">
-                    {{ optionRounds.value }}
-                  </label>
-                  <input
-                    type="range"
-                    class="form-range"
-                    v-model="optionRounds.value"
-                    :min="optionRounds.min"
-                    :max="optionRounds.max"
-                    id="customRange1"
-                  />
-                </div>
+            <div class="d-flex flex-row align-items-center mb-4">
+              <label class="col-sm-4 m-auto pe-3">ラウンド</label>
+              <div class="col-sm-8 form-outline flex-fill mb-0">
+                <label for="customRange1" class="form-label">
+                  {{ optionRounds.value }}
+                </label>
+                <input
+                  v-model="optionRounds.value"
+                  :min="optionRounds.min"
+                  :max="optionRounds.max"
+                  @change="optionRounds.method"
+                  type="range"
+                  class="form-range"
+                  id="customRange1"
+                />
               </div>
             </div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                キャンセル
-              </button>
-              <button type="button" class="btn btn-primary">作成</button>
-            </div>
+          </div>
+          <div class="modal-footer">
+            <button @click="closeModal" type="button" class="btn btn-secondary">
+              キャンセル
+            </button>
+            <button @click="confirmRoom" type="button" class="btn btn-primary">
+              作成
+            </button>
           </div>
         </div>
       </div>
@@ -125,7 +111,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRef, reactive } from 'vue'
+import { defineComponent, toRef, reactive, ref } from 'vue'
 
 interface User {
   name: string
@@ -140,31 +126,31 @@ interface User {
 class Room {
   public name: string
   public password: string
-  public max: number
+  public entryNum: number
   public mode: string
   public level: string
   public round: number
-  public host: User[]
   public participants: User[]
+  public link: string
 
-  constructor(
-    name: string,
-    password: string,
-    max: number,
-    mode: string,
-    level: string,
-    round: number,
-    host: User[],
-    participants: User[]
-  ) {
-    this.name = name
-    this.password = password
-    this.max = max
-    this.mode = mode
-    this.level = level
-    this.round = round
-    this.host = host
-    this.participants = participants
+  constructor() {
+    this.name = ''
+    this.password = ''
+    this.entryNum = 2
+    this.mode = '絵当てゲーム'
+    this.level = 'medium'
+    this.round = 5
+    this.participants = []
+    this.link = '/room'
+  }
+
+  public initialize() {
+    this.name = ''
+    this.password = ''
+    this.entryNum = 2
+    this.mode = '絵当てゲーム'
+    this.level = 'medium'
+    this.round = 5
   }
 }
 
@@ -173,82 +159,153 @@ export default defineComponent({
   components: {},
   props: ['user'],
   setup(props) {
+    let showModal = ref(false)
     let userInfo = toRef(props, 'user')
+    let room = new Room()
+
+    const inputsName = () => (room.name = inputs[0].text)
+    const inputsPassword = () => (room.password = inputs[1].text)
+    const selectEntryNum = () => (room.entryNum = Number(selects[0].selected))
+    const selectMode = () => (room.mode = String(selects[1].selected))
+    const selectLevel = () => (room.level = String(selects[2].selected))
+    const roundValue = () => (room.round = Number(optionRounds.value))
 
     const inputs: {
       text: string
       label: string
       type: string
       placeholder: string
-    }[] = [
+      method: () => void
+    }[] = reactive([
       {
-        text: '',
+        text: room.name,
         label: 'ルーム名',
         type: 'text',
-        placeholder: 'ルーム名'
+        placeholder: 'ルーム名',
+        method: inputsName
       },
       {
-        text: '',
+        text: room.password,
         label: 'パスワード',
         type: 'text',
-        placeholder: 'password'
+        placeholder: 'password',
+        method: inputsPassword
       }
-    ]
+    ])
 
     const selects: {
       selected: string | number
       options: string[] | number[]
       label: string
+      method: () => void
     }[] = [
       {
-        selected: 2,
+        selected: room.entryNum,
         options: [2, 3, 4, 5, 6],
-        label: '参加人数'
+        label: '参加人数',
+        method: selectEntryNum
       },
       {
-        selected: '絵当てゲーム',
+        selected: room.mode,
         options: ['絵当てゲーム', '伝言ゲーム'],
-        label: 'モード'
+        label: 'モード',
+        method: selectMode
       },
       {
-        selected: 'medium',
+        selected: room.level,
         options: ['hard', 'medium', 'easy'],
-        label: 'レベル'
+        label: 'レベル',
+        method: selectLevel
       }
     ]
 
-    const optionRounds: { value: number; min: number; max: number } = reactive({
-      value: 5,
+    const optionRounds: {
+      value: number
+      min: number
+      max: number
+      method: () => void
+    } = reactive({
+      value: room.round,
       min: 1,
-      max: 10
+      max: 10,
+      method: roundValue
     })
 
-    let cards = [
-      {
-        name: 'ルーム1',
-        max: 6,
-        now: 6,
-        link: '/room'
-      }
-    ]
+    const openModal = () => (showModal.value = true)
+    const closeModal = () => {
+      showModal.value = false
+      room.initialize()
+      initializeForm()
+    }
 
-    // const addRoom = () => {
-    //   console.log('addRoom')
-    // }
+    const confirmRoom = () => {
+      if (room.name === '') console.log('ありません')
+      else {
+        rooms.push(Object.assign({}, room))
+        room.initialize()
+        initializeForm()
+        showModal.value = false
+      }
+    }
+
+    const initializeForm = () => {
+      inputs[0].text = room.name
+      inputs[1].text = room.password
+      selects[0].selected = room.entryNum
+      selects[1].selected = room.mode
+      selects[2].selected = room.level
+      optionRounds.value = room.round
+    }
+
+    let rooms: Room[] = reactive([])
 
     return {
+      showModal,
       userInfo,
       inputs,
       selects,
-      cards,
-      optionRounds
-      // addRoom
+      rooms,
+      optionRounds,
+      room,
+      confirmRoom,
+      inputsName,
+      inputsPassword,
+      selectEntryNum,
+      selectMode,
+      selectLevel,
+      roundValue,
+      initializeForm,
+      openModal,
+      closeModal
     }
   }
 })
 </script>
 
 <style>
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 10;
+}
+
+.modal-box {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 32px;
+  background-color: #fff;
+  border-radius: 4px;
+  transform: translate(-50%, -50%);
+}
+
 .routerLink {
   text-decoration: none;
   color: #000;
