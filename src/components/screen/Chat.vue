@@ -21,7 +21,11 @@
     </div>
     <div class="d-flex align-items-center p-2">
       <input type="text" class="form-control" placeholder="Type a message" />
-      <button class="btn btn-primary rounded-circle ms-2" type="button">
+      <button
+        class="btn btn-primary rounded-circle ms-2"
+        type="button"
+        @click="getMessage"
+      >
         <i class="fas fa-paper-plane"></i>
       </button>
     </div>
@@ -29,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, onMounted } from 'vue'
 
 interface chat {
   name: string
@@ -47,15 +51,44 @@ export default defineComponent({
         img: 'https://i.imgur.com/bDLhJiP.jpg'
       }
     ])
-    for (let i = 0; i < 14; i++) {
-      chats.value.push({
-        name: 'Anonymous',
-        comment: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit.',
-        img: 'https://i.imgur.com/bDLhJiP.jpg'
-      } as chat)
+
+    let ws: WebSocket = new WebSocket(
+      (window.location.protocol == 'https' ? 'wss' : 'ws') +
+        '://' +
+        'localhost:8000' +
+        '/chat/room'
+    )
+
+    const connectSocket = () => {
+      ws.onopen = (e) => {
+        console.log(e)
+        console.log('Successfully connected to the echo WebSocket Server')
+      }
     }
+
+    const getMessage = () => {
+      ws.onmessage = (e) => {
+        const data = JSON.parse(e.data)
+        console.log(data.message)
+      }
+    }
+
+    const disconnect = () => {
+      ws.onclose = () => {
+        console.error('WebSocket has been closed unexpectedly')
+      }
+    }
+
+    onMounted(() => {
+      connectSocket()
+      console.log('test')
+    })
+
     return {
-      chats
+      chats,
+      connectSocket,
+      getMessage,
+      disconnect
     }
   }
 })
