@@ -140,14 +140,14 @@ interface User {
 }
 
 class Room {
-  public name: string
-  public password: string
-  public entryNum: number
-  public mode: string
-  public level: string
-  public round: number
-  public participants: User[]
-  public link: string
+  private name: string
+  private password: string
+  private entryNum: number
+  private mode: string
+  private level: string
+  private round: number
+  private participants: User[]
+  private link: string
 
   constructor() {
     this.name = ''
@@ -248,7 +248,6 @@ export default defineComponent({
   setup() {
     let showModal = ref(false)
     let room = new Room()
-    let rooms: Room[] = reactive([])
 
     const confirmBtnText = '作成'
     const cancelBtnText = 'キャンセル'
@@ -357,6 +356,8 @@ export default defineComponent({
       optionRounds.value = room.getRound()
     }
 
+    let rooms: Room[] = reactive([])
+
     return {
       showModal,
       inputs,
@@ -366,7 +367,15 @@ export default defineComponent({
       room,
       confirmBtnText,
       cancelBtnText,
+      confirm,
       confirmRoom,
+      inputsName,
+      inputsPassword,
+      selectEntryNum,
+      selectMode,
+      selectLevel,
+      roundValue,
+      initializeForm,
       openModal,
       closeModal
     }
