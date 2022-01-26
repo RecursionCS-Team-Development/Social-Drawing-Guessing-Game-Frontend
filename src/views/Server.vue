@@ -128,7 +128,6 @@ import { defineComponent, reactive, ref, PropType } from 'vue'
 import router from '../router'
 import ConfirmButton from '../components/common/ConfirmButton.vue'
 import CancelButton from '../components/common/CancelButton.vue'
-
 interface User {
   name: string
   mail: string
@@ -138,17 +137,15 @@ interface User {
   twitterAccount: string
   login: boolean
 }
-
 class Room {
-  private name: string
-  private password: string
-  private entryNum: number
-  private mode: string
-  private level: string
-  private round: number
-  private participants: User[]
-  private link: string
-
+  public name: string
+  public password: string
+  public entryNum: number
+  public mode: string
+  public level: string
+  public round: number
+  public participants: User[]
+  public link: string
   constructor() {
     this.name = ''
     this.password = ''
@@ -159,7 +156,6 @@ class Room {
     this.participants = []
     this.link = '/room'
   }
-
   public initialize() {
     this.name = ''
     this.password = ''
@@ -169,76 +165,58 @@ class Room {
     this.round = 5
     this.participants = []
   }
-
   public setName(name: string) {
     this.name = name
   }
-
   public getName(): string {
     return this.name
   }
-
   public setPassword(password: string) {
     this.password = password
   }
-
   public getPassword(): string {
     return this.password
   }
-
   public setEntryNum(entryNum: number) {
     this.entryNum = entryNum
   }
-
   public getEntryNum(): number {
     return this.entryNum
   }
-
   public setMode(mode: string) {
     this.mode = mode
   }
-
   public getMode(): string {
     return this.mode
   }
-
   public setLevel(level: string) {
     this.level = level
   }
-
   public getLevel(): string {
     return this.level
   }
-
   public setRound(round: number) {
     this.round = round
   }
-
   public getRound(): number {
     return this.round
   }
-
   public setParticipants(participants: User[]) {
     this.participants = participants
   }
-
   public getParticipants(): User[] {
     return this.participants
   }
-
   public setLink(link: string) {
     this.link = link
   }
-
   public getLink(): string {
     return this.link
   }
-
   public addUser(user: User) {
     this.participants.push(user)
   }
 }
-
 export default defineComponent({
   name: 'Server',
   components: { ConfirmButton, CancelButton },
@@ -248,17 +226,15 @@ export default defineComponent({
   setup() {
     let showModal = ref(false)
     let room = new Room()
-
+    let rooms: Room[] = reactive([])
     const confirmBtnText = '作成'
     const cancelBtnText = 'キャンセル'
-
     const inputsName = () => room.setName(inputs[0].text)
     const inputsPassword = () => room.setPassword(inputs[1].text)
     const selectEntryNum = () => room.setEntryNum(Number(selects[0].selected))
     const selectMode = () => room.setMode(String(selects[1].selected))
     const selectLevel = () => room.setLevel(String(selects[2].selected))
     const roundValue = () => room.setRound(Number(optionRounds.value))
-
     const inputs: {
       text: string
       label: string
@@ -287,7 +263,6 @@ export default defineComponent({
         method: inputsPassword
       }
     ])
-
     const selects: {
       selected: string | number
       options: string[] | number[]
@@ -313,7 +288,6 @@ export default defineComponent({
         method: selectLevel
       }
     ]
-
     const optionRounds: {
       value: number
       min: number
@@ -325,27 +299,23 @@ export default defineComponent({
       max: 10,
       method: roundValue
     })
-
     const openModal = () => (showModal.value = true)
     const closeModal = () => {
       showModal.value = false
       room.initialize()
       initializeForm()
     }
-
     const confirmRoom = (user: User) => {
       if (room.getName() === '') inputs[0].alert = true
       else {
         showModal.value = false
         room.addUser(user)
-
         rooms.push(Object.assign({}, room))
         router.push({ name: 'Room', params: { index: rooms.length } })
         room.initialize()
         initializeForm()
       }
     }
-
     const initializeForm = () => {
       inputs[0].text = room.getName()
       inputs[0].alert = false
@@ -355,9 +325,6 @@ export default defineComponent({
       selects[2].selected = room.getLevel()
       optionRounds.value = room.getRound()
     }
-
-    let rooms: Room[] = reactive([])
-
     return {
       showModal,
       inputs,
@@ -367,15 +334,7 @@ export default defineComponent({
       room,
       confirmBtnText,
       cancelBtnText,
-      confirm,
       confirmRoom,
-      inputsName,
-      inputsPassword,
-      selectEntryNum,
-      selectMode,
-      selectLevel,
-      roundValue,
-      initializeForm,
       openModal,
       closeModal
     }
@@ -393,7 +352,6 @@ export default defineComponent({
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 10;
 }
-
 .modal-box {
   position: absolute;
   top: 50%;
@@ -409,14 +367,12 @@ export default defineComponent({
   transform: translate(-50%, -50%);
   overflow: auto;
 }
-
 @media screen and (max-width: 768px) {
   .modal-box {
     width: 75%;
     padding: 12px;
   }
 }
-
 .routerLink {
   text-decoration: none;
   color: #000;
