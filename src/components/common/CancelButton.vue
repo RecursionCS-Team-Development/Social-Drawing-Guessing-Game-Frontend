@@ -1,7 +1,7 @@
 <template>
   <button
     type="button"
-    class="btn btn-primary btn-lg"
+    class="btn btn-secondary btn-lg"
     style="padding-left: 2.5rem; padding-right: 2.5rem"
   >
     {{ text }}
@@ -13,6 +13,6 @@ import { defineComponent } from 'vue'
 
 export default defineComponent({
   props: { text: String },
-  name: 'ConfirmButton'
+  name: 'CancelButton'
 })
 </script>
