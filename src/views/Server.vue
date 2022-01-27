@@ -311,7 +311,7 @@ export default defineComponent({
         showModal.value = false
         room.addUser(user)
         rooms.push(Object.assign({}, room))
-        router.push({ name: 'Room', params: { index: rooms.length } })
+        router.push({ name: 'Room', params: { roomId: rooms.length } })
         room.initialize()
         initializeForm()
       }
