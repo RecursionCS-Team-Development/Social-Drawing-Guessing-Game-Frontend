@@ -8,20 +8,20 @@
         </button>
       </div>
       <div class="row row-cols-2 row-cols-md-3 g-4 mt-2 mt-sm-5">
-        <template v-if="rooms.length">
-          <div class="col" v-for="(room, index) in rooms" :key="index">
+        <template v-if="roomsStore.length">
+          <div class="col" v-for="(room, index) in roomsStore" :key="index">
             <router-link
-              :to="room.link"
+              :to="room.getLink()"
               tag="div"
               class="card rounded routerLink"
             >
               <div class="card-body d-block p-2 p-sm-4">
-                <h5 class="card-title">{{ room.name }}</h5>
-                <p class="mb-1">{{ room.mode }}</p>
-                <p class="mb-1">{{ room.level }}</p>
-                <p class="mb-1">{{ room.round }}</p>
+                <h5 class="card-title">{{ room.getName() }}</h5>
+                <p class="mb-1">{{ room.getMode() }}</p>
+                <p class="mb-1">{{ room.getLevel() }}</p>
+                <p class="mb-1">{{ room.getRound() }}</p>
                 <p class="card-text text-end mt-sm-2">
-                  {{ room.participants.length }} / {{ room.entryNum }}
+                  {{ room.getParticipants().length }} / {{ room.getEntryNum() }}
                 </p>
               </div>
             </router-link>
@@ -52,10 +52,10 @@
                     <input
                       v-model="input.text"
                       :type="input.type"
-                      @input="input.method"
                       :placeholder="input.placeholder"
                       class="form-control"
                       required="true"
+                      disabled
                     />
                   </div>
                 </div>
@@ -70,7 +70,6 @@
                 <div class="col-sm-8 form-outline flex-fill mb-0">
                   <select
                     v-model="select.selected"
-                    @change="select.method"
                     class="form-select"
                     aria-label="Default select example"
                   >
@@ -78,6 +77,7 @@
                       v-for="(option, index) in select.options"
                       :key="index"
                       :value="option"
+                      disabled
                     >
                       {{ option }}
                     </option>
@@ -95,10 +95,10 @@
                     v-model="optionRounds.value"
                     :min="optionRounds.min"
                     :max="optionRounds.max"
-                    @change="optionRounds.method"
                     type="range"
                     class="form-range"
                     id="customRange1"
+                    disabled
                   />
                 </div>
               </div>
@@ -112,7 +112,6 @@
               <ConfirmButton
                 @click="confirmRoom(user)"
                 :text="confirmBtnText"
-                :room="room"
                 class="p-1 col-sm-5 col-8"
               />
             </div>
@@ -126,8 +125,10 @@
 <script lang="ts">
 import { defineComponent, reactive, ref, PropType } from 'vue'
 import router from '../router'
+import { useStore } from '../store'
 import ConfirmButton from '../components/common/ConfirmButton.vue'
 import CancelButton from '../components/common/CancelButton.vue'
+
 interface User {
   name: string
   mail: string
@@ -137,86 +138,18 @@ interface User {
   twitterAccount: string
   login: boolean
 }
-class Room {
-  public name: string
-  public password: string
-  public entryNum: number
-  public mode: string
-  public level: string
-  public round: number
-  public participants: User[]
-  public link: string
-  constructor() {
-    this.name = ''
-    this.password = ''
-    this.entryNum = 2
-    this.mode = '絵当てゲーム'
-    this.level = 'medium'
-    this.round = 5
-    this.participants = []
-    this.link = '/room'
-  }
-  public initialize() {
-    this.name = ''
-    this.password = ''
-    this.entryNum = 2
-    this.mode = '絵当てゲーム'
-    this.level = 'medium'
-    this.round = 5
-    this.participants = []
-  }
-  public setName(name: string) {
-    this.name = name
-  }
-  public getName(): string {
-    return this.name
-  }
-  public setPassword(password: string) {
-    this.password = password
-  }
-  public getPassword(): string {
-    return this.password
-  }
-  public setEntryNum(entryNum: number) {
-    this.entryNum = entryNum
-  }
-  public getEntryNum(): number {
-    return this.entryNum
-  }
-  public setMode(mode: string) {
-    this.mode = mode
-  }
-  public getMode(): string {
-    return this.mode
-  }
-  public setLevel(level: string) {
-    this.level = level
-  }
-  public getLevel(): string {
-    return this.level
-  }
-  public setRound(round: number) {
-    this.round = round
-  }
-  public getRound(): number {
-    return this.round
-  }
-  public setParticipants(participants: User[]) {
-    this.participants = participants
-  }
-  public getParticipants(): User[] {
-    return this.participants
-  }
-  public setLink(link: string) {
-    this.link = link
-  }
-  public getLink(): string {
-    return this.link
-  }
-  public addUser(user: User) {
-    this.participants.push(user)
-  }
+
+interface RoomHash {
+  name: string
+  password: string
+  entryNum: number
+  mode: string
+  level: string
+  round: number
+  participants: User[]
+  link: string
 }
+
 export default defineComponent({
   name: 'Server',
   components: { ConfirmButton, CancelButton },
@@ -224,17 +157,24 @@ export default defineComponent({
     user: Object as PropType<User>
   },
   setup() {
+    const store = useStore()
+    let roomsStore = store.state.rooms
+
+    let roomHash = reactive({
+      name: 'テストルーム',
+      password: '',
+      entryNum: 2,
+      mode: '絵当てゲーム',
+      level: 'medium',
+      round: 5,
+      participants: [],
+      link: '/room/' + Number(roomsStore.length + 1)
+    }) as RoomHash
+
     let showModal = ref(false)
-    let room = new Room()
-    let rooms: Room[] = reactive([])
     const confirmBtnText = '作成'
     const cancelBtnText = 'キャンセル'
-    const inputsName = () => room.setName(inputs[0].text)
-    const inputsPassword = () => room.setPassword(inputs[1].text)
-    const selectEntryNum = () => room.setEntryNum(Number(selects[0].selected))
-    const selectMode = () => room.setMode(String(selects[1].selected))
-    const selectLevel = () => room.setLevel(String(selects[2].selected))
-    const roundValue = () => room.setRound(Number(optionRounds.value))
+
     const inputs: {
       text: string
       label: string
@@ -242,96 +182,92 @@ export default defineComponent({
       placeholder: string
       alert: boolean
       alertText: string
-      method: () => void
     }[] = reactive([
       {
-        text: room.getName(),
+        text: roomHash.name,
         label: 'ルーム名',
         type: 'text',
         placeholder: 'ルーム名',
         alert: false,
-        alertText: 'ルーム名は必須です',
-        method: inputsName
+        alertText: 'ルーム名は必須です'
       },
       {
-        text: room.getPassword(),
+        text: roomHash.password,
         label: 'パスワード',
         type: 'text',
         placeholder: 'password',
         alert: false,
-        alertText: '',
-        method: inputsPassword
+        alertText: ''
       }
     ])
+
     const selects: {
       selected: string | number
       options: string[] | number[]
       label: string
-      method: () => void
     }[] = [
       {
-        selected: room.getEntryNum(),
+        selected: roomHash.entryNum,
         options: [2, 3, 4, 5, 6],
-        label: '参加人数',
-        method: selectEntryNum
+        label: '参加人数'
       },
       {
-        selected: room.getMode(),
+        selected: roomHash.mode,
         options: ['絵当てゲーム', '伝言ゲーム'],
-        label: 'モード',
-        method: selectMode
+        label: 'モード'
       },
       {
-        selected: room.getLevel(),
+        selected: roomHash.level,
         options: ['hard', 'medium', 'easy'],
-        label: 'レベル',
-        method: selectLevel
+        label: 'レベル'
       }
     ]
+
     const optionRounds: {
       value: number
       min: number
       max: number
-      method: () => void
     } = reactive({
-      value: room.getRound(),
+      value: roomHash.round,
       min: 1,
-      max: 10,
-      method: roundValue
+      max: 10
     })
+
     const openModal = () => (showModal.value = true)
     const closeModal = () => {
       showModal.value = false
-      room.initialize()
       initializeForm()
     }
     const confirmRoom = (user: User) => {
-      if (room.getName() === '') inputs[0].alert = true
+      if (roomHash.name === '') inputs[0].alert = true
       else {
         showModal.value = false
-        room.addUser(user)
-        rooms.push(Object.assign({}, room))
-        router.push({ name: 'Room', params: { index: rooms.length } })
-        room.initialize()
+        roomHash.participants.push(user)
+        store.commit('addRoom', roomHash)
+        router.push({
+          name: 'Room',
+          params: { roomId: roomsStore.length }
+        })
         initializeForm()
       }
     }
+
     const initializeForm = () => {
-      inputs[0].text = room.getName()
+      inputs[0].text = roomHash.name
       inputs[0].alert = false
-      inputs[1].text = room.getPassword()
-      selects[0].selected = room.getEntryNum()
-      selects[1].selected = room.getMode()
-      selects[2].selected = room.getLevel()
-      optionRounds.value = room.getRound()
+      inputs[1].text = roomHash.password
+      selects[0].selected = roomHash.entryNum
+      selects[1].selected = roomHash.mode
+      selects[2].selected = roomHash.level
+      optionRounds.value = roomHash.round
     }
+
     return {
       showModal,
       inputs,
       selects,
-      rooms,
+      roomsStore,
       optionRounds,
-      room,
       confirmBtnText,
       cancelBtnText,
       confirmRoom,
