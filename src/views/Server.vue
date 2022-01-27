@@ -159,7 +159,6 @@ export default defineComponent({
     let showModal = ref(false)
     const confirmBtnText = '作成'
     const cancelBtnText = 'キャンセル'
-
     const inputs: {
       text: string
       label: string
@@ -178,7 +177,6 @@ export default defineComponent({
       },
       {
         text: roomHash.password,
-        label: 'パスワード',
         type: 'text',
         placeholder: 'password',
         alert: false,
