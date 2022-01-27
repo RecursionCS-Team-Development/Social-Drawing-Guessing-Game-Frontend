@@ -1,5 +1,4 @@
 import http from './http_common'
-
 class AccountApiService {
   protected _auth = 'api/auth/'
 
@@ -11,7 +10,7 @@ class AccountApiService {
       email,
       password
     }
-    return http.post(this._auth + 'jwt/create', data)
+    return http.post(this._auth + 'jwt/create/', data)
   }
   getUser(token: string): Promise<any> {
     return http.get(this._auth + 'user', {

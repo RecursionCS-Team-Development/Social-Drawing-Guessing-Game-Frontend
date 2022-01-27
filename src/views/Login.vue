@@ -129,13 +129,13 @@ export default defineComponent({
         icon: 'fa-envelope',
         inputType: 'email',
         placeholder: 'Type Your Email',
-        text: ''
+        text: 'recursion_teamdev@recursion.com'
       },
       {
         icon: 'fa-lock',
         inputType: 'password',
         placeholder: 'Type Your Password',
-        text: ''
+        text: 'recursion2022'
       }
     ])
     const confirm = 'Login'
@@ -144,11 +144,21 @@ export default defineComponent({
       let email = inputs[0].text
       let password = inputs[1].text
 
+      // await fetch('http://localhost:8000/api/auth/jwt/create/', {
+      //   method: 'POST',
+      //   headers: {'Content-Type': 'applications/json'},
+      //   credentials: 'include',
+      //   body: JSON.stringify({
+      //     email: email,
+      //     password: password
+      //   })
+      // })
+
+      const res = await AccountApiService.login(email, password)
       try {
-        const res = await AccountApiService.login(email, password)
-        console.log(res.data['access'])
-        const user = await AccountApiService.getUser(res.data['access'])
-        console.log(user.data.results[0])
+        console.log(res)
+        // const user = await AccountApiService.getUser(res.data['access'])
+        // console.log(user.data.results[0])
       } catch (error) {
         console.log(error)
       }
