@@ -126,29 +126,12 @@
 import { defineComponent, reactive, ref, PropType } from 'vue'
 import router from '../router'
 import { useStore } from '../store'
+
 import ConfirmButton from '../components/common/ConfirmButton.vue'
 import CancelButton from '../components/common/CancelButton.vue'
 
-interface User {
-  name: string
-  mail: string
-  password: string
-  img: string
-  profile: string
-  twitterAccount: string
-  login: boolean
-}
-
-interface RoomHash {
-  name: string
-  password: string
-  entryNum: number
-  mode: string
-  level: string
-  round: number
-  participants: User[]
-  link: string
-}
+import { User } from '../interface/user'
+import { RoomHash } from '../interface/roomHash'
 
 export default defineComponent({
   name: 'Server',

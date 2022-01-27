@@ -25,15 +25,7 @@ import { defineComponent, reactive } from 'vue'
 import NavigationBar from './components/NavigationBar.vue'
 import http from './http_common'
 
-interface User {
-  name: string
-  mail: string
-  password: string
-  img: string
-  profile: string
-  twitterAccount: string
-  login: boolean
-}
+import { User } from './interface/user'
 
 export default defineComponent({
   name: 'App',
