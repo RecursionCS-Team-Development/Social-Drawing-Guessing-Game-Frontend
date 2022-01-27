@@ -177,6 +177,7 @@ export default defineComponent({
       },
       {
         text: roomHash.password,
+        label: 'パスワード',
         type: 'text',
         placeholder: 'password',
         alert: false,
