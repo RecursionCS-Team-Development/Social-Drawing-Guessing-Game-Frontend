@@ -50,6 +50,11 @@ export default defineComponent({
       login: false
     })
 
+    // const getApi = async () => {
+    //   const temp = await http.get('api/auth')
+    //   console.log(temp)
+    // }
+
     return {
       user
     }
