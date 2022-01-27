@@ -20,11 +20,16 @@
       </div>
     </div>
     <div class="d-flex align-items-center p-2">
-      <input type="text" class="form-control" placeholder="Type a message" />
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Type a message"
+        v-model="userAnswer"
+      />
       <button
         class="btn btn-primary rounded-circle ms-2"
-        type="button"
-        @click="getMessage"
+        type="submit"
+        @click="sendAnswer"
       >
         <i class="fas fa-paper-plane"></i>
       </button>
@@ -44,6 +49,7 @@ interface chat {
 export default defineComponent({
   name: 'chat',
   setup() {
+    const userAnswer = ref<string>('')
     let chats = ref<chat[]>([
       {
         name: 'Anonymous',
@@ -52,26 +58,37 @@ export default defineComponent({
       }
     ])
 
-    let ws: WebSocket = new WebSocket(
+    const ws: WebSocket = new WebSocket(
       (window.location.protocol == 'https' ? 'wss' : 'ws') +
         '://' +
         'localhost:8000' +
-        '/chat/room'
+        '/ws/chat' +
+        '/id/'
     )
 
     const connectSocket = () => {
-      ws.onopen = (e) => {
-        console.log(e)
+      ws.onopen = () => {
         console.log('Successfully connected to the echo WebSocket Server')
       }
     }
 
-    const getMessage = () => {
-      ws.onmessage = (e) => {
-        const data = JSON.parse(e.data)
-        console.log(data.message)
+    const sendAnswer = () => {
+      const test = {
+        type: 'send message',
+        message: JSON.stringify(userAnswer.value)
       }
+      const data = JSON.parse(JSON.stringify(test))
+      console.log(JSON.stringify(test))
+      console.log(data)
+      ws.send(data)
+      userAnswer.value = ''
     }
+    // const getMessage = () => {
+    ws.onmessage = (e) => {
+      console.log(e)
+      console.log('Websocket open for getting messages')
+    }
+    // }
 
     const disconnect = () => {
       ws.onclose = () => {
@@ -81,14 +98,16 @@ export default defineComponent({
 
     onMounted(() => {
       connectSocket()
-      console.log('test')
+      // getMessage()
     })
 
     return {
       chats,
+      userAnswer,
       connectSocket,
-      getMessage,
-      disconnect
+      disconnect,
+      sendAnswer
+      // getMessage
     }
   }
 })

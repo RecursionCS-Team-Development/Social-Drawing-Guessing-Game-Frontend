@@ -251,7 +251,11 @@ export default defineComponent({
         placeholder: 'ルーム名',
         alert: false,
         alertText: 'ルーム名は必須です',
-        method: inputsName
+        method: inputsName,
+        name: 'ロビー1',
+        max: 6,
+        now: 6,
+        link: '/room'
       },
       {
         text: room.getPassword(),
