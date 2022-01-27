@@ -1,4 +1,5 @@
-import { User } from '../interface/user'
+import { Chat } from '../interface/chat'
+import { Player } from '../model/player'
 
 export class Room {
   private name: string
@@ -7,7 +8,8 @@ export class Room {
   private mode: string
   private level: string
   private round: number
-  private participants: User[]
+  private participants: Player[]
+  private chatLog: Chat[]
   private link: string
 
   constructor(
@@ -17,7 +19,7 @@ export class Room {
     mode: string,
     level: string,
     round: number,
-    participants: User[],
+    participants: Player[],
     link: string
   ) {
     this.name = name
@@ -27,6 +29,7 @@ export class Room {
     this.level = level
     this.round = round
     this.participants = participants
+    this.chatLog = []
     this.link = link
   }
 
@@ -78,12 +81,20 @@ export class Room {
     return this.round
   }
 
-  public setParticipants(participants: User[]): void {
+  public setParticipants(participants: Player[]): void {
     this.participants = participants
   }
 
-  public getParticipants(): User[] {
+  public getParticipants(): Player[] {
     return this.participants
+  }
+
+  public setChatLog(chatLog: Chat[]): void {
+    this.chatLog = chatLog
+  }
+
+  public getChatLog(): Chat[] {
+    return this.chatLog
   }
 
   public setLink(link: string): void {
@@ -94,7 +105,7 @@ export class Room {
     return this.link
   }
 
-  public addUser(user: User): void {
-    this.participants.push(user)
+  public addPlayer(player: Player): void {
+    this.participants.push(player)
   }
 }

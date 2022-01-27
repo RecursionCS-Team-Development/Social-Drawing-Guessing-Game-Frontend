@@ -17,12 +17,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-
-interface Player {
-  name: string
-  score: number
-  img: string
-}
+import { Player } from '../../model/player'
 
 export default defineComponent({
   name: 'playerList',

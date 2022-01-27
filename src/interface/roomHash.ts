@@ -1,4 +1,4 @@
-import { User } from '../interface/user'
+import { Player } from '../model/player'
 
 export interface RoomHash {
   name: string
@@ -7,6 +7,6 @@ export interface RoomHash {
   mode: string
   level: string
   round: number
-  participants: User[]
+  participants: Player[]
   link: string
 }

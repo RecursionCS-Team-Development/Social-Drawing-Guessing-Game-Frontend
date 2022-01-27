@@ -130,8 +130,10 @@ import { useStore } from '../store'
 import ConfirmButton from '../components/common/ConfirmButton.vue'
 import CancelButton from '../components/common/CancelButton.vue'
 
-import { User } from '../interface/user'
+import { User } from '../model/user'
 import { RoomHash } from '../interface/roomHash'
+
+import { Player } from '../model/player'
 
 export default defineComponent({
   name: 'Server',
@@ -225,7 +227,7 @@ export default defineComponent({
       if (roomHash.name === '') inputs[0].alert = true
       else {
         showModal.value = false
-        roomHash.participants.push(user)
+        roomHash.participants.push(new Player(user, true))
         store.commit('addRoom', roomHash)
         router.push({
           name: 'Room',
