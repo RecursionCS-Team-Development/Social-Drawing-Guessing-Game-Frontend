@@ -1,5 +1,6 @@
 <template>
   <section class="room" style="background-color: #eee">
+    <div class="p-3" v-if="roomId != 0">{{ roomId }}</div>
     <div class="container h-100 w-100">
       <div
         class="py-1 py-lg-3 row d-flex align-items-stretch justify-content-center"
@@ -66,6 +67,7 @@ interface Player {
 
 export default defineComponent({
   name: 'room',
+  props: ['roomId'],
   components: { DrawingPaper, PencilCase, PlayerList, Chat },
 
   setup() {
