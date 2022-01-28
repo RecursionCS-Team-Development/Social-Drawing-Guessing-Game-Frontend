@@ -4,19 +4,7 @@
       <h2 class="text-start p-2 m-0">Chat log</h2>
       <div class="dropdown-divider"></div>
       <div class="px-1 overflow-scroll chat_wrapper">
-        <div v-for="(chat, index) in chats" :key="index">
-          <div class="d-flex">
-            <div class="pt-md-3 pt-2">
-              <img :src="chat.img" width="32" class="rounded-circle" />
-            </div>
-            <div
-              class="pt-md-3 pt-2 ps-md-3 ps-2 text-start text-black chat_size"
-            >
-              <span class="pe-3 text-secondary">{{ chat.name }}</span>
-              {{ chat.comment }}
-            </div>
-          </div>
-        </div>
+        <TextLine v-for="(chat, index) in chats" :key="index" :chat="chat" />
       </div>
     </div>
     <div class="d-flex align-items-center p-2">
@@ -38,9 +26,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, onActivated } from 'vue'
+import TextLine from './TextLine.vue'
 
-interface chat {
+interface Chat {
   name: string
   comment: string
   img: string
@@ -48,47 +37,53 @@ interface chat {
 
 export default defineComponent({
   name: 'chat',
+  components: { TextLine },
   setup() {
     const userAnswer = ref<string>('')
-    let chats = ref<chat[]>([
-      {
-        name: 'Anonymous',
-        comment: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit.',
-        img: 'https://i.imgur.com/bDLhJiP.jpg'
-      }
-    ])
+    let chats = ref<Chat[]>([])
 
     const ws: WebSocket = new WebSocket(
       (window.location.protocol == 'https' ? 'wss' : 'ws') +
         '://' +
         'localhost:8000' +
         '/ws/chat' +
+        // useStoreでidを変える
         '/id/'
     )
 
     const connectSocket = () => {
       ws.onopen = () => {
-        console.log('Successfully connected to the echo WebSocket Server')
+        console.log('Open WebSocket Server')
       }
+      getMessage()
     }
 
     const sendAnswer = () => {
-      const test = {
+      const sendData = {
         type: 'send message',
-        message: JSON.stringify(userAnswer.value)
+        message: userAnswer.value
       }
-      const data = JSON.parse(JSON.stringify(test))
-      console.log(JSON.stringify(test))
-      console.log(data)
+      const data = JSON.stringify(sendData)
       ws.send(data)
       userAnswer.value = ''
     }
-    // const getMessage = () => {
-    ws.onmessage = (e) => {
-      console.log(e)
-      console.log('Websocket open for getting messages')
+
+    const getMessage = () => {
+      ws.onmessage = (e) => {
+        const dataFromDjango = JSON.parse(e.data)
+        switch (dataFromDjango.type) {
+          case 'connection established':
+            console.log(dataFromDjango.message)
+            break
+          default:
+            chats.value.push({
+              name: 'testUser',
+              comment: dataFromDjango.message,
+              img: 'https://i.imgur.com/bDLhJiP.jpg'
+            })
+        }
+      }
     }
-    // }
 
     const disconnect = () => {
       ws.onclose = () => {
@@ -96,9 +91,12 @@ export default defineComponent({
       }
     }
 
+    onActivated(() => {
+      getMessage()
+    })
+
     onMounted(() => {
       connectSocket()
-      // getMessage()
     })
 
     return {
@@ -106,8 +104,8 @@ export default defineComponent({
       userAnswer,
       connectSocket,
       disconnect,
-      sendAnswer
-      // getMessage
+      sendAnswer,
+      getMessage
     }
   }
 })
