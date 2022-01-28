@@ -23,6 +23,7 @@
 <script lang="ts">
 import { defineComponent, reactive } from 'vue'
 import NavigationBar from './components/NavigationBar.vue'
+import http from './http_common'
 
 interface User {
   name: string
@@ -50,13 +51,14 @@ export default defineComponent({
       login: false
     })
 
-    // const getApi = async () => {
-    //   const temp = await http.get('api/auth')
-    //   console.log(temp)
-    // }
+    const getApi = async () => {
+      const temp = await http.get('api/auth')
+      console.log(temp)
+    }
 
     return {
-      user
+      user,
+      getApi
     }
   }
 })
