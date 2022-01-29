@@ -121,10 +121,12 @@ export default defineComponent({
 <style scoped>
 .chat_wrapper {
   max-height: 60vh;
+  min-height: 60vh;
 }
 @media screen and (max-width: 992px) {
   .chat_wrapper {
     max-height: 30vh;
+    min-height: 30vh;
   }
 }
 .chat_size {
