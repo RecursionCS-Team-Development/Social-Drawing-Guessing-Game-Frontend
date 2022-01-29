@@ -26,9 +26,9 @@
         </div>
 
         <div
-          class="col-lg-4 col-11 bg-white border d-flex align-items-start flex-column"
+          class="col-lg-4 col-11 bg-white border d-flex align-items-start justify-content-between flex-column"
         >
-          <Chat />
+          <Chat :roomId="roomId" />
           <div class="d-flex justify-content-around action p-2 w-100">
             <button
               type="button"
@@ -52,38 +52,26 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, toRef } from 'vue'
+import { useStore } from '../store'
 import DrawingPaper from './../components/draw/DrawingPaper.vue'
 import PencilCase from './../components/draw/PencilCase.vue'
 import PlayerList from './../components/screen/PlayerList.vue'
 import Chat from '../components/screen/Chat.vue'
-
-interface Player {
-  name: string
-  score: number
-  img: string
-}
+import { Player } from '../model/player'
 
 export default defineComponent({
   name: 'room',
+  props: ['roomId'],
   components: { DrawingPaper, PencilCase, PlayerList, Chat },
+  setup(props) {
+    let roomId = toRef(props, 'roomId')
 
-  setup() {
-    let players = ref<Player[]>([
-      {
-        name: 'Anonymous',
-        score: 100,
-        img: 'https://i.imgur.com/bDLhJiP.jpg'
-      }
-    ])
-    for (let i = 0; i < 5; i++) {
-      players.value.push({
-        name: 'Anonymous',
-        score: 100,
-        img: 'https://i.imgur.com/bDLhJiP.jpg'
-      } as Player)
-    }
+    const store = useStore()
+    let room = store.state.rooms[Number(roomId.value - 1)]
+    let players: Player[] = room.getParticipants()
     return {
+      room,
       players
     }
   }
