@@ -1,11 +1,6 @@
 <template>
   <section class="login h-100" style="background-color: #eee">
     <div class="container h-100">
-      <!-- Error Message -->
-      <div v-if="true" class="alert alert-danger mt-3" role="alert">
-        ログインまたはパスワードが違います
-      </div>
-
       <div
         class="row d-flex justify-content-center align-items-center h-100 my-4"
       >
@@ -62,6 +57,8 @@
 
                     <div class="text-center mb-3 mb-lg-4">
                       <ConfirmButton :text="confirm" @click="loginSubmit" />
+                      <ConfirmButton :text="confirm" @click="logoutSubmit" />
+                      <ConfirmButton :text="confirm" @click="refreshSubmit" />
 
                       <div class="mt-4">
                         <p class="small fw-bold mt-2 pt-1 mb-0 text-end">
@@ -144,31 +141,27 @@ export default defineComponent({
       let email = inputs[0].text
       let password = inputs[1].text
 
-      // await fetch('http://localhost:8000/api/auth/jwt/create/', {
-      //   method: 'POST',
-      //   headers: {'Content-Type': 'applications/json'},
-      //   credentials: 'include',
-      //   body: JSON.stringify({
-      //     email: email,
-      //     password: password
-      //   })
-      // })
-
-      const res = await AccountApiService.login(email, password)
-      try {
-        console.log(res)
-        // const user = await AccountApiService.getUser(res.data['access'])
-        // console.log(user.data.results[0])
-      } catch (error) {
-        console.log(error)
-      }
+      const res = await AccountApiService.loginAPI(email, password)
+      console.log(res)
     }
 
+    const logoutSubmit = async () => {
+      const res = await AccountApiService.logoutAPI()
+      console.log(res)
+    }
+
+    const refreshSubmit = async () => {
+      console.log('refresh')
+      const res = await AccountApiService.refreshAPI()
+      console.log(res)
+    }
     return {
       auths,
       inputs,
       confirm,
-      loginSubmit
+      loginSubmit,
+      logoutSubmit,
+      refreshSubmit
     }
   }
 })
