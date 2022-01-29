@@ -42,13 +42,17 @@ export default defineComponent({
     const userAnswer = ref<string>('')
     let chats = ref<Chat[]>([])
 
+    const getRoomId = () => {
+      const room = window.location.pathname.split('/')
+      return room[room.length - 1]
+    }
+
     const ws: WebSocket = new WebSocket(
       (window.location.protocol == 'https' ? 'wss' : 'ws') +
         '://' +
         'localhost:8000' +
         '/ws/chat' +
-        // useStoreでidを変える
-        '/id/'
+        `/${getRoomId()}/`
     )
 
     const connectSocket = () => {
@@ -59,6 +63,7 @@ export default defineComponent({
     }
 
     const sendAnswer = () => {
+      if (userAnswer.value === '') return
       const sendData = {
         type: 'send message',
         message: userAnswer.value
@@ -97,6 +102,7 @@ export default defineComponent({
 
     onMounted(() => {
       connectSocket()
+      getRoomId()
     })
 
     return {
@@ -105,7 +111,8 @@ export default defineComponent({
       connectSocket,
       disconnect,
       sendAnswer,
-      getMessage
+      getMessage,
+      getRoomId
     }
   }
 })
