@@ -4,24 +4,21 @@
       <h2 class="text-start p-2 m-0">Chat log</h2>
       <div class="dropdown-divider"></div>
       <div class="px-1 overflow-scroll chat_wrapper">
-        <div v-for="(chat, index) in chats" :key="index">
-          <div class="d-flex">
-            <div class="pt-md-3 pt-2">
-              <img :src="chat.img" width="32" class="rounded-circle" />
-            </div>
-            <div
-              class="pt-md-3 pt-2 ps-md-3 ps-2 text-start text-black chat_size"
-            >
-              <span class="pe-3 text-secondary">{{ chat.name }}</span>
-              {{ chat.comment }}
-            </div>
-          </div>
-        </div>
+        <TextLine v-for="(chat, index) in chats" :key="index" :chat="chat" />
       </div>
     </div>
     <div class="d-flex align-items-center p-2">
-      <input type="text" class="form-control" placeholder="Type a message" />
-      <button class="btn btn-primary rounded-circle ms-2" type="button">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Type a message"
+        v-model="userAnswer"
+      />
+      <button
+        class="btn btn-primary rounded-circle ms-2"
+        type="submit"
+        @click="sendAnswer"
+      >
         <i class="fas fa-paper-plane"></i>
       </button>
     </div>
@@ -29,9 +26,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, onMounted, onActivated } from 'vue'
+import TextLine from './TextLine.vue'
 
-interface chat {
+interface Chat {
   name: string
   comment: string
   img: string
@@ -39,23 +37,82 @@ interface chat {
 
 export default defineComponent({
   name: 'chat',
+  components: { TextLine },
   setup() {
-    let chats = ref<chat[]>([
-      {
-        name: 'Anonymous',
-        comment: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit.',
-        img: 'https://i.imgur.com/bDLhJiP.jpg'
-      }
-    ])
-    for (let i = 0; i < 14; i++) {
-      chats.value.push({
-        name: 'Anonymous',
-        comment: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit.',
-        img: 'https://i.imgur.com/bDLhJiP.jpg'
-      } as chat)
+    const userAnswer = ref<string>('')
+    let chats = ref<Chat[]>([])
+
+    const getRoomId = () => {
+      const room = window.location.pathname.split('/')
+      return room[room.length - 1]
     }
+
+    const ws: WebSocket = new WebSocket(
+      (window.location.protocol == 'https' ? 'wss' : 'ws') +
+        '://' +
+        'localhost:8000' +
+        '/ws/chat' +
+        `/${getRoomId()}/`
+    )
+
+    const connectSocket = () => {
+      ws.onopen = () => {
+        console.log('Open WebSocket Server')
+      }
+      getMessage()
+    }
+
+    const sendAnswer = () => {
+      if (userAnswer.value === '') return
+      const sendData = {
+        type: 'send message',
+        message: userAnswer.value
+      }
+      const data = JSON.stringify(sendData)
+      ws.send(data)
+      userAnswer.value = ''
+    }
+
+    const getMessage = () => {
+      ws.onmessage = (e) => {
+        const dataFromDjango = JSON.parse(e.data)
+        switch (dataFromDjango.type) {
+          case 'connection established':
+            console.log(dataFromDjango.message)
+            break
+          default:
+            chats.value.push({
+              name: 'testUser',
+              comment: dataFromDjango.message,
+              img: 'https://i.imgur.com/bDLhJiP.jpg'
+            })
+        }
+      }
+    }
+
+    const disconnect = () => {
+      ws.onclose = () => {
+        console.error('WebSocket has been closed unexpectedly')
+      }
+    }
+
+    onActivated(() => {
+      getMessage()
+    })
+
+    onMounted(() => {
+      connectSocket()
+      getRoomId()
+    })
+
     return {
-      chats
+      chats,
+      userAnswer,
+      connectSocket,
+      disconnect,
+      sendAnswer,
+      getMessage,
+      getRoomId
     }
   }
 })
@@ -64,10 +121,12 @@ export default defineComponent({
 <style scoped>
 .chat_wrapper {
   max-height: 60vh;
+  min-height: 60vh;
 }
 @media screen and (max-width: 992px) {
   .chat_wrapper {
     max-height: 30vh;
+    min-height: 30vh;
   }
 }
 .chat_size {
