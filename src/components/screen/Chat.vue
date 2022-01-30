@@ -41,7 +41,6 @@ export default defineComponent({
   setup() {
     const userAnswer = ref<string>('')
     let chats = ref<Chat[]>([])
-
     const getRoomId = () => {
       const room = window.location.pathname.split('/')
       return room[room.length - 1]
@@ -50,8 +49,8 @@ export default defineComponent({
     const ws: WebSocket = new WebSocket(
       (window.location.protocol == 'https' ? 'wss' : 'ws') +
         '://' +
-        'localhost:8000' +
-        '/ws/chat' +
+        process.env.VUE_APP_BACKEND_URL +
+        'ws/chat' +
         `/${getRoomId()}/`
     )
 
