@@ -57,8 +57,6 @@
 
                     <div class="text-center mb-3 mb-lg-4">
                       <ConfirmButton :text="confirm" @click="loginSubmit" />
-                      <ConfirmButton :text="confirm" @click="logoutSubmit" />
-                      <ConfirmButton :text="confirm" @click="refreshSubmit" />
 
                       <div class="mt-4">
                         <p class="small fw-bold mt-2 pt-1 mb-0 text-end">
@@ -89,6 +87,9 @@
 
 <script lang="ts">
 import { defineComponent, reactive } from 'vue'
+import { useRouter } from 'vue-router'
+import { useStore } from '../store'
+
 import InputText from './../components/common/InputText.vue'
 import AuthLoginButton from './../components/common/AuthLoginButton.vue'
 import ConfirmButton from './../components/common/ConfirmButton.vue'
@@ -137,31 +138,33 @@ export default defineComponent({
     ])
     const confirm = 'Login'
 
+    const store = useStore()
+    const router = useRouter()
+
+    let errorMessage = ''
+
     const loginSubmit = async () => {
       let email = inputs[0].text
       let password = inputs[1].text
 
       const res = await AccountApiService.loginAPI(email, password)
-      console.log(res)
+
+      if (res.status == 200) {
+        store.dispatch('login')
+        await router.push('/lobby')
+      } else {
+        //エラーハンドリングを追加必要
+        console.log('ログインまたはパスワードが違います')
+        errorMessage = 'ログインまたはパスワードが違います'
+      }
     }
 
-    const logoutSubmit = async () => {
-      const res = await AccountApiService.logoutAPI()
-      console.log(res)
-    }
-
-    const refreshSubmit = async () => {
-      console.log('refresh')
-      const res = await AccountApiService.refreshAPI()
-      console.log(res)
-    }
     return {
       auths,
       inputs,
       confirm,
-      loginSubmit,
-      logoutSubmit,
-      refreshSubmit
+      errorMessage,
+      loginSubmit
     }
   }
 })

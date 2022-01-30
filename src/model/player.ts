@@ -11,7 +11,8 @@ export class Player extends User {
       user.img,
       user.profile,
       user.twitterAccount,
-      user.login
+      user.login,
+      user.accessToken
     )
     this.score = 0
     this.isHost = isHost

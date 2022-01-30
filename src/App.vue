@@ -21,10 +21,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from 'vue'
+import { defineComponent, onMounted } from 'vue'
 import NavigationBar from './components/NavigationBar.vue'
-
-import { User } from './model/user'
+import { useStore } from '../src/store'
 
 export default defineComponent({
   name: 'App',
@@ -32,14 +31,10 @@ export default defineComponent({
     NavigationBar
   },
   setup() {
-    let user = reactive<User>({
-      name: 'ユーザー1',
-      mail: '@gmail.com',
-      password: '12345678',
-      img: 'https://4.bp.blogspot.com/-bTipX3Vmpts/Wn1ZgUbOHXI/AAAAAAABKM4/b31Jvq8aWssiswuiO19BAJmmAC5WAzXwACLcBGAs/s800/character_boy_normal.png',
-      profile: 'よろしくお願いします',
-      twitterAccount: '',
-      login: false
+    const store = useStore()
+    let user = store.state.user
+    onMounted(() => {
+      store.dispatch('login')
     })
 
     return {

@@ -58,9 +58,9 @@ api.interceptors.request.use(async (config) => {
 // }
 
 // api.interceptors.response.use(_handleResponse, _handleAuthError)
-api.interceptors.response.use(async (error) => {
-  console.log('requestは送信されました')
-  return error
+api.interceptors.response.use(async (res: any) => {
+  // console.log(res.status)
+  return res
 })
 
 export default api
