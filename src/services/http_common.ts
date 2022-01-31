@@ -2,9 +2,9 @@ import axios from 'axios'
 
 const api = axios.create({
   // baseURL: 'https://social-drawing-guessing-game.herokuapp.com/',
+  baseURL: 'http://localhost:8000/',
   withCredentials: true,
   timeout: 5000,
-  baseURL: 'http://localhost:8000/',
   headers: {
     'X-Requested-With': 'XMLHttpRequest',
     'Content-type': 'application/json'
@@ -15,7 +15,7 @@ const api = axios.create({
 api.interceptors.request.use(async (config) => {
   // vuexのuserにaccess tokenがあるか確認
   // 無ければ、refreshAPI()でcookieのrefresh tokenを使用してaccess tokenを発行
-  console.log('Login requestを送信しました')
+  // console.log('Login requestを送信しました')
   // let accessToken = store.getState().user.accessToken;
   // if(!accessToken){
   //   const res: any = await refreshAPI();
