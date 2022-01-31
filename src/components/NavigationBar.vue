@@ -46,6 +46,7 @@
                 class="dropdown-item"
                 :to="dropItem.link"
                 :style="{ color: dropItem.color }"
+                @click="dropItem.method"
                 >{{ dropItem.name }}
               </router-link>
             </li>
@@ -72,13 +73,19 @@
 
 <script lang="ts">
 import { defineComponent, toRef, computed } from 'vue'
-import router from '../router'
+import { useRouter } from 'vue-router'
+import { useStore } from '../store'
 
 export default defineComponent({
   name: 'navBar',
   props: ['user'],
   setup(props) {
     let userInfo = toRef(props, 'user')
+    const store = useStore()
+    const router = useRouter()
+    const logoutSubmit = () => {
+      store.dispatch('logout')
+    }
 
     const change = () => (userInfo.value.login = !userInfo.value.login) //ログイン切り替え
 
@@ -93,9 +100,14 @@ export default defineComponent({
       { name: 'ロビーへ', link: '/lobby', color: '#000000' }
     ]
     const dropItems = [
-      { name: userInfo.value.name, link: '/myPage', color: '#000000' },
-      { name: '設定', link: '/settings', color: '#000000' },
-      { name: 'ログアウト', link: '/', color: '#000000' }
+      {
+        name: userInfo.value.name,
+        link: '/myPage',
+        color: '#000000',
+        method: ''
+      },
+      { name: '設定', link: '/settings', color: '#000000', method: '' },
+      { name: 'ログアウト', link: '/', color: '#000000', method: logoutSubmit }
     ]
 
     const setNavItems = computed(() => {
@@ -119,7 +131,8 @@ export default defineComponent({
       setNavItems,
       homeLogItems,
       homeNotLogItems,
-      dropItems
+      dropItems,
+      logoutSubmit
     }
   }
 })

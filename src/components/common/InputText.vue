@@ -3,22 +3,25 @@
     <i class="fas fa-lg me-3 fa-fw" :class="post.icon"></i>
     <div class="form-outline flex-fill mb-0">
       <input
-        :type="post.inputType"
-        :id="post.icon"
+        :type="prop.inputType"
+        :id="prop.icon"
         class="form-control"
-        :placeholder="post.placeholder"
+        :placeholder="prop.placeholder"
+        :value="prop.text"
+        @input="updateValue($event.target.value)"
       />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, PropType, toRef } from 'vue'
 
 interface Props {
   icon: string
   inputType: string
   placeholder: string
+  text: string
 }
 
 export default defineComponent({
@@ -28,6 +31,16 @@ export default defineComponent({
       required: true
     }
   },
-  name: 'inputText'
+  name: 'inputText',
+  setup(props, context) {
+    const prop = toRef(props, 'post')
+    const updateValue = (text: string) => {
+      prop.value.text = text
+    }
+    return {
+      updateValue,
+      prop
+    }
+  }
 })
 </script>

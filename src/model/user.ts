@@ -6,6 +6,7 @@ export class User {
   public profile: string
   public twitterAccount: string
   public login: boolean
+  public accessToken: string
   constructor(
     name: string,
     mail: string,
@@ -13,7 +14,8 @@ export class User {
     img: string,
     profile: string,
     twitterAccount: string,
-    login: boolean
+    login: boolean,
+    accessToken: string
   ) {
     this.name = name
     this.mail = mail
@@ -22,5 +24,6 @@ export class User {
     this.profile = profile
     this.twitterAccount = twitterAccount
     this.login = login
+    this.accessToken = accessToken
   }
 }
