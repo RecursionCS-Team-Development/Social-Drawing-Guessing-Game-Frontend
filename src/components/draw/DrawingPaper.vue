@@ -22,7 +22,11 @@
       <button @click="clear">Clear</button>
     </div>
 
-    <div class="order-2 order-lg-1 canvas_wrapper border" ref="canvasRef">
+    <div
+      class="order-2 order-lg-1 canvas_wrapper border"
+      ref="canvasRef"
+      @mouseover="test"
+    >
       <canvas id="canvas"></canvas>
     </div>
   </div>
@@ -51,7 +55,6 @@ export default defineComponent({
     let lineWidth = ref(10)
     let drawColor = ref('#000000')
     const eraserColor = ref('rgb(238,238,238)')
-
     let canvas1 = reactive<Canvas>({
       canvas: undefined
     })
@@ -124,6 +127,19 @@ export default defineComponent({
       if (brush?.color) brush.color = drawColor.value
     }
 
+    const test = () => {
+      console.log('test')
+      if (canvas1.canvas === undefined) return
+      canvas1.canvas.on('mouse:over', (e) => {
+        console.log(e.target)
+        console.log('done')
+      })
+    }
+
+    onUpdated(() => {
+      test()
+    })
+
     return {
       lineWidth,
       colorPalette,
@@ -135,7 +151,8 @@ export default defineComponent({
       pen,
       clear,
       eraser,
-      setColor
+      setColor,
+      test
     }
   }
 })
