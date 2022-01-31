@@ -1,6 +1,10 @@
 <template>
   <section class="login h-100" style="background-color: #eee">
     <div class="container h-100">
+      <!-- Error Message -->
+      <div v-if="is_error" class="mt-3 alert alert-danger" role="alert">
+        {{ errorMessage }}
+      </div>
       <div
         class="row d-flex justify-content-center align-items-center h-100 my-4"
       >
@@ -86,7 +90,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from 'vue'
+import { defineComponent, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from '../store'
 
@@ -127,13 +131,13 @@ export default defineComponent({
         icon: 'fa-envelope',
         inputType: 'email',
         placeholder: 'Type Your Email',
-        text: 'recursion_teamdev@recursion.com'
+        text: ''
       },
       {
         icon: 'fa-lock',
         inputType: 'password',
         placeholder: 'Type Your Password',
-        text: 'recursion2022'
+        text: ''
       }
     ])
     const confirm = 'Login'
@@ -141,28 +145,30 @@ export default defineComponent({
     const store = useStore()
     const router = useRouter()
 
-    let errorMessage = ''
+    let is_error = ref(false)
+    let errorMessage = ref('')
 
     const loginSubmit = async () => {
       let email = inputs[0].text
       let password = inputs[1].text
 
-      const res = await AccountApiService.loginAPI(email, password)
-
-      if (res.status == 200) {
-        store.dispatch('login')
-        await router.push('/lobby')
-      } else {
-        //エラーハンドリングを追加必要
-        console.log('ログインまたはパスワードが違います')
-        errorMessage = 'ログインまたはパスワードが違います'
-      }
+      await AccountApiService.loginAPI(email, password)
+        .then((res) => {
+          console.log(res.data)
+          store.dispatch('login')
+          router.push('/lobby')
+        })
+        .catch((error) => {
+          is_error.value = true
+          errorMessage.value = 'メールアドレスまたはパスワードが違います'
+        })
     }
 
     return {
       auths,
       inputs,
       confirm,
+      is_error,
       errorMessage,
       loginSubmit
     }

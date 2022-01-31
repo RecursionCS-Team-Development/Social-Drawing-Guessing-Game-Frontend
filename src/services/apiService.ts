@@ -15,6 +15,20 @@ class AccountApiService {
   logoutAPI(): Promise<any> {
     return api.post(this._auth + 'logout/', {})
   }
+  signupAPI(
+    username: string,
+    email: string,
+    password: string,
+    re_password: string
+  ): Promise<any> {
+    const data = {
+      username,
+      email,
+      password,
+      re_password
+    }
+    return api.post(this._auth + 'users/', data)
+  }
   getUser(token: string): Promise<any> {
     return api.get(this._auth + 'user', {
       headers: {
