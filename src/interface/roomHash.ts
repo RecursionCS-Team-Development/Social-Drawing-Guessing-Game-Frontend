@@ -7,6 +7,6 @@ export interface RoomHash {
   mode: string
   level: string
   round: number
-  participants: Player[]
+  players: Player[]
   link: string
 }

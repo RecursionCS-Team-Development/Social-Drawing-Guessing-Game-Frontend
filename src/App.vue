@@ -37,6 +37,7 @@ export default defineComponent({
       name: 'ユーザー1',
       mail: '@gmail.com',
       password: '12345678',
+      id: '1234',
       img: 'https://4.bp.blogspot.com/-bTipX3Vmpts/Wn1ZgUbOHXI/AAAAAAABKM4/b31Jvq8aWssiswuiO19BAJmmAC5WAzXwACLcBGAs/s800/character_boy_normal.png',
       profile: 'よろしくお願いします',
       twitterAccount: '',

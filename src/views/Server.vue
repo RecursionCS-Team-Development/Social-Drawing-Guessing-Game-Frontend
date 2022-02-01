@@ -17,11 +17,11 @@
             >
               <div class="card-body d-block p-2 p-sm-4">
                 <h5 class="card-title">{{ room.getName() }}</h5>
-                <p class="mb-1">{{ room.getMode() }}</p>
+                <!-- <p class="mb-1">{{ room.getMode() }}</p> -->
                 <p class="mb-1">{{ room.getLevel() }}</p>
                 <p class="mb-1">{{ room.getRound() }}</p>
                 <p class="card-text text-end mt-sm-2">
-                  {{ room.getParticipants().length }} / {{ room.getEntryNum() }}
+                  {{ room.getPlayers().length }} / {{ room.getEntryNum() }}
                 </p>
               </div>
             </router-link>
@@ -151,8 +151,8 @@ export default defineComponent({
       entryNum: 2,
       mode: '絵当てゲーム',
       level: 'medium',
-      round: 5,
-      participants: [],
+      round: 3,
+      players: [],
       link: '/room/' + Number(roomsStore.length + 1)
     }) as RoomHash
 
@@ -226,7 +226,7 @@ export default defineComponent({
       if (roomHash.name === '') inputs[0].alert = true
       else {
         showModal.value = false
-        roomHash.participants.push(new Player(user, true))
+        roomHash.players.push(new Player(user))
         store.commit('addRoom', roomHash)
         router.push({
           name: 'Room',

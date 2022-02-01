@@ -38,6 +38,7 @@ import {
   onUpdated
 } from 'vue'
 import { fabric } from 'fabric'
+import { useStore } from '../../store'
 
 interface Canvas {
   canvas: fabric.Canvas | undefined
@@ -46,6 +47,13 @@ interface Canvas {
 export default defineComponent({
   name: 'canvas',
   setup() {
+    const getRoomId = () => {
+      const room = window.location.pathname.split('/')
+      return room[room.length - 1]
+    }
+    const store = useStore()
+    let room = store.state.rooms[Number(getRoomId()) - 1]
+
     let canvasRef = ref<HTMLDivElement>()
     let colorPalette = ref<HTMLInputElement>()
     let lineWidth = ref(10)

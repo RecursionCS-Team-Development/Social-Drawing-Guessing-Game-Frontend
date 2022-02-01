@@ -2,18 +2,19 @@ import { User } from '../model/user'
 
 export class Player extends User {
   public score: number
-  public isHost: boolean
-  constructor(user: User, isHost: boolean) {
+  public isDrawer: boolean
+  constructor(user: User) {
     super(
       user.name,
       user.mail,
       user.password,
+      user.id,
       user.img,
       user.profile,
       user.twitterAccount,
       user.login
     )
     this.score = 0
-    this.isHost = isHost
+    this.isDrawer = false
   }
 }
