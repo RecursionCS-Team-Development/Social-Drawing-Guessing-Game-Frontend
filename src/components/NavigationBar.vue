@@ -27,7 +27,7 @@
           class="dropdown"
           v-if="
             !initialPage.includes(String($router.currentRoute.value.name)) &&
-            userInfo.login == true
+            user.login == true
           "
         >
           <div
@@ -66,28 +66,27 @@
         </ul>
       </div>
     </div>
-    <div>{{ userInfo.login }}</div>
+    <div>{{ user.login }}</div>
     <button @click="change" class="mx-2">ログ切替</button>
   </nav>
 </template>
 
 <script lang="ts">
-import { defineComponent, toRef, computed } from 'vue'
+import { defineComponent, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from '../store'
 
 export default defineComponent({
   name: 'navBar',
-  props: ['user'],
-  setup(props) {
-    let userInfo = toRef(props, 'user')
+  setup() {
     const store = useStore()
     const router = useRouter()
+    const user = store.state.user
     const logoutSubmit = () => {
       store.dispatch('logout')
     }
 
-    const change = () => (userInfo.value.login = !userInfo.value.login) //ログイン切り替え
+    const change = () => (user.login = !user.login) //ログイン切り替え
 
     const initialPage = ['Home', 'LogIn', 'SignUp']
     const logSignPage = ['LogIn', 'SignUp']
@@ -101,7 +100,7 @@ export default defineComponent({
     ]
     const dropItems = [
       {
-        name: userInfo.value.name,
+        name: user.name,
         link: '/myPage',
         color: '#000000',
         method: ''
@@ -113,9 +112,9 @@ export default defineComponent({
     const setNavItems = computed(() => {
       let routeName = String(router.currentRoute.value.name)
 
-      if (!logSignPage.includes(routeName) && userInfo.value.login == false) {
+      if (!logSignPage.includes(routeName) && user.login == false) {
         return homeLogItems
-      } else if (routeName === 'Home' && userInfo.value.login == true) {
+      } else if (routeName === 'Home' && user.login == true) {
         return homeNotLogItems
       } else return []
     })
@@ -123,7 +122,7 @@ export default defineComponent({
     const setDropItems = computed(() => dropItems)
 
     return {
-      userInfo,
+      user,
       change,
       initialPage,
       logSignPage,
