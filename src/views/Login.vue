@@ -154,7 +154,6 @@ export default defineComponent({
 
       await AccountApiService.loginAPI(email, password)
         .then((res) => {
-          console.log(res.data)
           store.dispatch('login')
           router.push('/lobby')
         })

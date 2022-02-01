@@ -73,6 +73,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import InputText from './../components/common/InputText.vue'
 import ConfirmButton from './../components/common/ConfirmButton.vue'
 
@@ -121,6 +122,8 @@ export default defineComponent({
     let is_error = ref(false)
     let errorMessage = ref('')
 
+    const router = useRouter()
+
     const signinSubmit = async () => {
       let username = inputs[0].text
       let email = inputs[1].text
@@ -128,7 +131,10 @@ export default defineComponent({
       let re_password = inputs[3].text
 
       await AccountApiService.signupAPI(username, email, password, re_password)
-        .then((res) => console.log(res))
+        .then((res) => {
+          console.log(res)
+          router.push('/login')
+        })
         .catch((error) => {
           const res = error.response
           if (res.status === 400) {

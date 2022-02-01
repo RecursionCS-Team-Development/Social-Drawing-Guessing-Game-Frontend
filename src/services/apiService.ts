@@ -29,8 +29,8 @@ class AccountApiService {
     }
     return api.post(this._auth + 'users/', data)
   }
-  getUser(token: string): Promise<any> {
-    return api.get(this._auth + 'user', {
+  getUserAPI(token: string): Promise<any> {
+    return api.get(this._auth + 'user/', {
       headers: {
         Authorization: 'JWT ' + token
       }
