@@ -96,7 +96,8 @@ export default defineComponent({
       'https://4.bp.blogspot.com/-7ArmuhZRYmE/Wn1Zk_UUyHI/AAAAAAABKNg/uXtlYDHauv8RVt54J0qxKbEGS8jYYCCgACLcBGAs/s400/character_girl_normal.png',
       'よろしくお願いします',
       '',
-      false
+      false,
+      ''
     )
     const addUser = () => room.phaseAction(user2)
 

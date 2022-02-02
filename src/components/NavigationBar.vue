@@ -27,7 +27,7 @@
           class="dropdown"
           v-if="
             !initialPage.includes(String($router.currentRoute.value.name)) &&
-            userInfo.login == true
+            user.login == true
           "
         >
           <div
@@ -41,11 +41,12 @@
             <img class="avatar" :src="user.img" alt="Avatar" />
           </div>
           <ul class="dropdown-menu mt-2" aria-labelledby="dropdownMenuButton1">
-            <li v-for="(dropItem, index) in setDropItems" :key="index">
+            <li v-for="(dropItem, index) in dropItems" :key="index">
               <router-link
                 class="dropdown-item"
-                :to="dropItem.link"
+                :to="dropItem.name"
                 :style="{ color: dropItem.color }"
+                @click="dropItem.method"
                 >{{ dropItem.name }}
               </router-link>
             </li>
@@ -65,22 +66,27 @@
         </ul>
       </div>
     </div>
-    <div>{{ userInfo.login }}</div>
+    <div>{{ user.login }}</div>
     <button @click="change" class="mx-2">ログ切替</button>
   </nav>
 </template>
 
 <script lang="ts">
-import { defineComponent, toRef, computed } from 'vue'
-import router from '../router'
+import { defineComponent, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useStore } from '../store'
 
 export default defineComponent({
   name: 'navBar',
-  props: ['user'],
-  setup(props) {
-    let userInfo = toRef(props, 'user')
+  setup() {
+    const store = useStore()
+    const router = useRouter()
+    const user = store.state.user
+    const logoutSubmit = () => {
+      store.dispatch('logout')
+    }
 
-    const change = () => (userInfo.value.login = !userInfo.value.login) //ログイン切り替え
+    const change = () => (user.login = !user.login) //ログイン切り替え
 
     const initialPage = ['Home', 'LogIn', 'SignUp']
     const logSignPage = ['LogIn', 'SignUp']
@@ -92,18 +98,31 @@ export default defineComponent({
     const homeNotLogItems = [
       { name: 'ロビーへ', link: '/lobby', color: '#000000' }
     ]
-    const dropItems = [
-      { name: userInfo.value.name, link: '/myPage', color: '#000000' },
-      { name: '設定', link: '/settings', color: '#000000' },
-      { name: 'ログアウト', link: '/', color: '#000000' }
-    ]
+
+    const dropItems = computed(() => {
+      return [
+        {
+          name: user.name,
+          link: '/myPage',
+          color: '#000000',
+          method: ''
+        },
+        { name: '設定', link: '/settings', color: '#000000', method: '' },
+        {
+          name: 'ログアウト',
+          link: '/',
+          color: '#000000',
+          method: logoutSubmit
+        }
+      ]
+    })
 
     const setNavItems = computed(() => {
       let routeName = String(router.currentRoute.value.name)
 
-      if (!logSignPage.includes(routeName) && userInfo.value.login == false) {
+      if (!logSignPage.includes(routeName) && user.login == false) {
         return homeLogItems
-      } else if (routeName === 'Home' && userInfo.value.login == true) {
+      } else if (routeName === 'Home' && user.login == true) {
         return homeNotLogItems
       } else return []
     })
@@ -111,7 +130,7 @@ export default defineComponent({
     const setDropItems = computed(() => dropItems)
 
     return {
-      userInfo,
+      user,
       change,
       initialPage,
       logSignPage,
@@ -119,7 +138,8 @@ export default defineComponent({
       setNavItems,
       homeLogItems,
       homeNotLogItems,
-      dropItems
+      dropItems,
+      logoutSubmit
     }
   }
 })

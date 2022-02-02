@@ -50,8 +50,8 @@ export default defineComponent({
     const ws: WebSocket = new WebSocket(
       (window.location.protocol == 'https' ? 'wss' : 'ws') +
         '://' +
-        'localhost:8000' +
-        '/ws/chat' +
+        process.env.VUE_APP_BACKEND_URL +
+        'ws/chat' +
         `/${getRoomId()}/`
     )
 

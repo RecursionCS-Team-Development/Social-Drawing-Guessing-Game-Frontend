@@ -81,7 +81,6 @@ export class HitPictureRoom extends HitPictureGame implements Room {
         (this.currRound % this.shufflePlayers.length) - 1
       ]
     }
-    this.shufflePlayers.length
     return this.shufflePlayers[this.currRound - 1]
   }
 
@@ -131,16 +130,18 @@ export class HitPictureRoom extends HitPictureGame implements Room {
     const hiraMessage = this.kanaToHira(message)
     if (hiraMessage === this.currTheme && sender != this.getDrawerPlayer()) {
       alert('正解')
-      this.evaluateHitPicture(this.getPlayerById(id))
+      this.evaluateHitPicture(sender)
       this.resetTime()
     }
 
     return false
   }
+
   public savePicture(): void {
     console.log('絵をセーブ')
   }
 
+  // todo O(1)でするためにhashにするplayer[]を
   public getPlayerById(id: string): Player {
     for (let i = 0; i < this.players.length; i++) {
       if (this.players[i].id === id) return this.players[i]
@@ -194,7 +195,7 @@ export class HitPictureRoom extends HitPictureGame implements Room {
   public displayPlayerName(players: Player[]): string {
     let s = ''
     for (let i = 0; i < players.length; i++) {
-      s += players[i].name + ':' + players[i].score + '\n'
+      s += players[i].name + ': ' + players[i].score + '\n'
     }
     return s
   }

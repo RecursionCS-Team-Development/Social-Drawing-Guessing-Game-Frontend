@@ -1,4 +1,4 @@
-import { InjectionKey } from 'vue'
+import { InjectionKey, reactive } from 'vue'
 import { createStore, useStore as baseUseStore, Store } from 'vuex'
 
 import { User } from '../model/user'
@@ -7,6 +7,8 @@ import { RoomFactory } from '../model/roomFactory'
 import { RoomHash } from '../interface/roomHash'
 
 import { HitPictureRoom } from '@/model/hitPictureRoom'
+
+import AccountApiService from '../services/apiService'
 
 export interface State {
   user: User
@@ -18,14 +20,15 @@ export const key: InjectionKey<Store<State>> = Symbol()
 export const store = createStore<State>({
   state: {
     user: {
-      name: 'ユーザー1',
-      mail: '@gmail.com',
-      password: '12345678',
-      id: '1234',
+      name: '',
+      mail: '',
+      password: '',
+      id: '',
       img: 'https://4.bp.blogspot.com/-bTipX3Vmpts/Wn1ZgUbOHXI/AAAAAAABKM4/b31Jvq8aWssiswuiO19BAJmmAC5WAzXwACLcBGAs/s800/character_boy_normal.png',
-      profile: 'よろしくお願いします',
+      profile: '',
       twitterAccount: '',
-      login: false
+      login: false,
+      accessToken: ''
     },
     rooms: []
   },
@@ -35,6 +38,70 @@ export const store = createStore<State>({
     },
     change(state: State): void {
       state.user.login = !state.user.login
+    },
+    setAccessToken(state: State, payload: string): void {
+      state.user.accessToken = payload
+      state.user.login = true
+    },
+    removeAccessToken(state: State, payload: string): void {
+      state.user.accessToken = payload
+      state.user.login = false
+    },
+    setUserInfo(state: State, payload: User): void {
+      state.user.name = payload.name
+      // state.user.password = payload.password
+      state.user.mail = payload.mail
+      // state.user.img = payload.img
+      state.user.profile = payload.profile
+      // state.user.twitterAccount = payload.twitterAccount
+    }
+  },
+  actions: {
+    async login({ commit, state }) {
+      //cookieのrefresh tokenからAccessTokenを発行
+      await AccountApiService.refreshAPI()
+        .then((res) => {
+          const accessToken = res.data['access']
+          commit('setAccessToken', accessToken)
+        })
+        .catch((error) => {
+          console.log(error.response)
+        })
+
+      //loginしているuserの情報を取得
+      const accessToken = store.state.user.accessToken
+      await AccountApiService.getUserAPI(accessToken)
+        .then((res) => {
+          // icon = 'https://4.bp.blogspot.com/-bTipX3Vmpts/Wn1ZgUbOHXI/AAAAAAABKM4/b31Jvq8aWssiswuiO19BAJmmAC5WAzXwACLcBGAs/s800/character_boy_normal.png'
+
+          const user = reactive<User>({
+            name: res.data.username,
+            mail: res.data.email,
+            password: '',
+            id: '',
+            img: res.data.icon,
+            profile: res.data.profile,
+            twitterAccount: '',
+            login: false,
+            accessToken: ''
+          })
+
+          commit('setUserInfo', user)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    },
+    async logout({ commit, state }) {
+      //cookieのrefresh tokenを削除
+      await AccountApiService.logoutAPI()
+        .then((res) => {
+          const payload = ''
+          commit('removeAccessToken', payload)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
     }
   }
 })

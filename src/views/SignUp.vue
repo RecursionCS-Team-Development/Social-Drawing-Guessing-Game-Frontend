@@ -1,6 +1,10 @@
 <template>
   <section class="signIn h-100" style="background-color: #eee">
     <div class="container h-100">
+      <!-- Error Message -->
+      <div v-if="is_error" class="mt-3 alert alert-danger" role="alert">
+        {{ errorMessage }}
+      </div>
       <div
         class="row d-flex justify-content-center align-items-center h-100 my-4"
       >
@@ -18,6 +22,7 @@
                       v-for="(ele, index) in inputs"
                       :post="ele"
                       :key="index"
+                      :v-model="ele.text"
                     />
 
                     <div class="form-check d-flex justify-content-center mb-5">
@@ -33,7 +38,10 @@
                     </div>
 
                     <div class="text-center mb-3 mb-lg-4">
-                      <ConfirmButton :text="confirmText" />
+                      <ConfirmButton
+                        :text="confirmText"
+                        @click="signinSubmit"
+                      />
 
                       <div class="mt-5">
                         <p class="small fw-bold mt-2 pt-1 mb-0 text-end">
@@ -64,9 +72,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import InputText from './../components/common/InputText.vue'
 import ConfirmButton from './../components/common/ConfirmButton.vue'
+
+import AccountApiService from '../services/apiService'
 
 export default defineComponent({
   name: 'SignIn',
@@ -75,32 +86,78 @@ export default defineComponent({
     ConfirmButton
   },
   setup() {
-    const inputs: { icon: string; inputType: string; placeholder: string }[] = [
+    const inputs: {
+      icon: string
+      inputType: string
+      placeholder: string
+      text: string
+    }[] = reactive([
       {
         icon: 'fa-user',
         inputType: 'text',
-        placeholder: 'Your Name'
+        placeholder: 'Your Name',
+        text: 'user14'
       },
       {
         icon: 'fa-envelope',
         inputType: 'email',
-        placeholder: 'Your Email'
+        placeholder: 'Your Email',
+        text: 'user14@user.com'
       },
       {
         icon: 'fa-lock',
         inputType: 'password',
-        placeholder: 'Your Password'
+        placeholder: 'Your Password',
+        text: 'recursion2022'
       },
       {
         icon: 'fa-key',
         inputType: 'password',
-        placeholder: 'Conform Your Password'
+        placeholder: 'Conform Your Password',
+        text: 'recursion2022'
       }
-    ]
+    ])
     const confirmText = '新規登録'
+
+    let is_error = ref(false)
+    let errorMessage = ref('')
+
+    const router = useRouter()
+
+    const signinSubmit = async () => {
+      let username = inputs[0].text
+      let email = inputs[1].text
+      let password = inputs[2].text
+      let re_password = inputs[3].text
+
+      await AccountApiService.signupAPI(username, email, password, re_password)
+        .then((res) => {
+          console.log(res)
+          router.push('/login')
+        })
+        .catch((error) => {
+          const res = error.response
+          if (res.status === 400) {
+            is_error.value = true
+
+            for (const key in res.data) {
+              if (key === 'email') {
+                errorMessage.value = '既にメールアドレスは使用されています'
+              }
+              if (key === 'non_field_errors') {
+                errorMessage.value = 'パスワードが一致していません'
+              }
+            }
+          }
+        })
+    }
+
     return {
       inputs,
-      confirmText
+      confirmText,
+      is_error,
+      errorMessage,
+      signinSubmit
     }
   }
 })

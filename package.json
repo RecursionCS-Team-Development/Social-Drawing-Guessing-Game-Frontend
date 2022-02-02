@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "dev": "vue-cli-service serve --mode=development",
+    "build": "vue-cli-service build --mode=production",
     "lint": "vue-cli-service lint",
     "prepare": "husky install",
     "lint-staged": "lint-staged",
@@ -21,8 +22,10 @@
     "vuex": "^4.0.0-0"
   },
   "devDependencies": {
+    "@types/axios": "^0.14.0",
     "@types/bootstrap": "^5.1.9",
     "@types/fabric": "^4.5.6",
+    "@types/node": "^17.0.13",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "@vue/cli-plugin-babel": "~4.5.0",
