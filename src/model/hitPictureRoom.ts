@@ -24,7 +24,7 @@ export class HitPictureRoom extends HitPictureGame implements Room {
     players: Player[],
     link: string
   ) {
-    super()
+    super(players)
     this.name = name
     this.password = password
     this.entryNum = entryNum
@@ -38,73 +38,34 @@ export class HitPictureRoom extends HitPictureGame implements Room {
   public clear(fabricClear: () => void): void {
     fabricClear()
   }
-  // public setName(name: string): void {
-  //   this.name = name
-  // }
 
   public getName(): string {
     return this.name
   }
 
-  // public setPassword(password: string): void {
-  //   this.password = password
-  // }
-
   public getPassword(): string {
     return this.password
   }
-
-  // public setEntryNum(entryNum: number): void {
-  //   this.entryNum = entryNum
-  // }
 
   public getEntryNum(): number {
     return this.entryNum
   }
 
-  // public setMode(mode: string): void {
-  //   this.mode = mode
-  // }
-
-  // public getGameMode(): GameFactory | undefined {
-  //   return this.gameMode
-  // }
-
-  // public setLevel(level: string): void {
-  //   this.level = level
-  // }
-
   public getLevel(): string {
     return this.level
   }
-
-  // public setRound(round: number): void {
-  //   this.round = round
-  // }
 
   public getRound(): number {
     return this.round
   }
 
-  // public setplayers(players: Player[]): void {
-  //   this.players = players
-  // }
-
   public getPlayers(): Player[] {
     return this.players
   }
 
-  // public setChatLog(chatLog: Chat[]): void {
-  //   this.chatLog = chatLog
-  // }
-
   public getChatLog(): Chat[] {
     return this.chatLog
   }
-
-  // public setLink(link: string): void {
-  //   this.link = link
-  // }
 
   public getLink(): string {
     return this.link
@@ -135,11 +96,14 @@ export class HitPictureRoom extends HitPictureGame implements Room {
     if (!this.validSetPlayer()) {
       if (player instanceof Player) {
         this.players.push(player)
+        this.shufflePlayers.push(player)
       } else if (player instanceof User) {
         this.players.push(new Player(player))
+        this.shufflePlayers.push(new Player(player))
       } else {
         const jsonPlayer: Player = new Player(JSON.parse(player))
         this.players.push(jsonPlayer)
+        this.shufflePlayers.push(jsonPlayer)
       }
 
       if (this.validSetPlayer()) {
@@ -209,20 +173,40 @@ export class HitPictureRoom extends HitPictureGame implements Room {
         this.gameStart()
         break
       case 'evaluationWinners':
+        alert(this.displayPlayerName(this.sortScore()))
+        this.gamePhase = 'end'
+        break
       default:
         return
     }
   }
 
-  public shufflePlayer(): void {
+  public sortScore(): Player[] {
     const tempPlayers: Player[] = Array.from(this.players)
+    tempPlayers.sort((a, b) => {
+      if (a.score > b.score) return -1
+      if (a.score < b.score) return 1
+      return 0
+    })
+    return tempPlayers
+  }
+
+  public displayPlayerName(players: Player[]): string {
+    let s = ''
+    for (let i = 0; i < players.length; i++) {
+      s += players[i].name + ':' + players[i].score + '\n'
+    }
+    return s
+  }
+
+  public shufflePlayer(): void {
     const newThemeList: Player[] = []
 
-    while (tempPlayers.length > 0) {
-      const l = tempPlayers.length
+    while (this.shufflePlayers.length > 0) {
+      const l = this.shufflePlayers.length
       const random = Math.floor(Math.random() * l)
-      newThemeList.push(tempPlayers[random])
-      tempPlayers.splice(random, 1)
+      newThemeList.push(this.shufflePlayers[random])
+      this.shufflePlayers.splice(random, 1)
     }
     this.shufflePlayers = newThemeList
   }
@@ -265,6 +249,7 @@ export class HitPictureRoom extends HitPictureGame implements Room {
         this.phaseAction()
       } else {
         this.gamePhase = 'evaluationWinners'
+        this.phaseAction()
       }
     }
   }

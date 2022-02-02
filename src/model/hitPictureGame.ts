@@ -14,20 +14,36 @@ export class HitPictureGame {
   protected timerCountId: number
   protected ANSWER_SCORE: number
   protected DRAWER_SCORE: number
-  constructor() {
+  constructor(players: Player[]) {
     this.themeList = ['りんご', 'いるか', 'じんじゃ', 'ばなな']
-    this.shufflePlayers = []
+    this.shufflePlayers = Array.from(players)
     this.currRound = 1
     this.currTheme = ''
     this.gamePhase = 'ready'
     this.secTime = 0
     this.initialTime = 0
     this.readyTime = 10
-    this.drawTime = 20
+    this.drawTime = 10
     this.timerOutId = 0
     this.timerCountId = 0
     this.ANSWER_SCORE = 50
     this.DRAWER_SCORE = 30
+  }
+
+  public getGamePhase(): string {
+    return this.gamePhase
+  }
+
+  public getSecTime(): number {
+    return this.secTime
+  }
+
+  public getCurrTheme(): string {
+    return this.currTheme
+  }
+
+  public getCurrRound(): number {
+    return this.currRound
   }
 
   public shuffleThemeList(): void {
@@ -46,4 +62,4 @@ export class HitPictureGame {
   }
 }
 
-type Phase = 'ready' | 'acting' | 'evaluationWinners'
+type Phase = 'ready' | 'acting' | 'evaluationWinners' | 'end'

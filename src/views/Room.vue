@@ -3,11 +3,18 @@
     <div class="container h-100 w-100">
       <div class="d-flex align-items-center justify-content-around">
         <button @click="addUser">user追加</button>
-        <h6>{{ room.gamePhase }}</h6>
-        <h6>時間 {{ room.secTime }}s</h6>
-        <h6>{{ room.currTheme }}</h6>
-        <h6>描き手:{{ drawPlayer }}さん</h6>
-        <h6>{{ room.currRound }} / {{ room.round }}</h6>
+        <h6>{{ room.getGamePhase() }}</h6>
+        <h6>時間 {{ room.getSecTime() }} s</h6>
+
+        <h6 v-if="room.getDrawerPlayer().id != user.id">
+          お題{{ room.getCurrTheme() }}(本来表示されない)
+        </h6>
+        <h6 v-else>お題{{ room.getCurrTheme() }}</h6>
+
+        <h6 v-if="room.getDrawerPlayer() && room.getGamePhase() === 'acting'">
+          描き手:{{ room.getDrawerPlayer().name }}さん
+        </h6>
+        <h6>{{ room.getCurrRound() }} / {{ room.round }}</h6>
       </div>
 
       <div
@@ -35,19 +42,23 @@
           <Chat :roomId="roomId" />
           <div class="d-flex justify-content-around action p-2 w-100">
             <button
+              v-if="room.getGamePhase() === 'ready'"
               type="button"
               class="btn btn-outline-primary"
               style="width: 45%"
             >
-              準備完了
+              準備完了(機能なし)
             </button>
-            <button
+            <router-link
+              v-if="room.getGamePhase() === 'end'"
               type="button"
               class="btn btn-outline-secondary"
               style="width: 45%"
+              :to="'/lobby'"
+              tag="button"
             >
               退出
-            </button>
+            </router-link>
           </div>
         </div>
       </div>
@@ -56,7 +67,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRef, computed } from 'vue'
+import { defineComponent, toRef } from 'vue'
 import { useStore } from '../store'
 import DrawingPaper from './../components/draw/DrawingPaper.vue'
 import PencilCase from './../components/draw/PencilCase.vue'
@@ -64,6 +75,7 @@ import PlayerList from './../components/screen/PlayerList.vue'
 import Chat from '../components/screen/Chat.vue'
 import { Player } from '../model/player'
 import { User } from '../model/user'
+import { HitPictureRoom } from '../model/hitPictureRoom'
 
 export default defineComponent({
   name: 'room',
@@ -73,9 +85,10 @@ export default defineComponent({
     let roomId = toRef(props, 'roomId')
 
     const store = useStore()
-    let room = store.state.rooms[Number(roomId.value - 1)]
+    let room: HitPictureRoom = store.state.rooms[Number(roomId.value - 1)]
+    let user: User = store.state.user
     let players: Player[] = room.getPlayers()
-    const user = new User(
+    const user2 = new User(
       'ユーザー2',
       '@gmail.com',
       '2345678',
@@ -85,20 +98,21 @@ export default defineComponent({
       '',
       false
     )
-    const addUser = () => room.phaseAction(user)
+    const addUser = () => room.phaseAction(user2)
 
-    const drawPlayer = computed(() => {
-      if (room.getShufflePlayers().length != 0) {
-        return room.getDrawerPlayer().name
-      }
-      return room.getDrawerPlayer()
-    })
+    // const drawPlayer = computed(() => {
+    //   if (room.getShufflePlayers().length != 0) {
+    //     return room.getDrawerPlayer().name
+    //   }
+    //   return room.getDrawerPlayer()
+    // })
 
     return {
       room,
       players,
       user,
-      drawPlayer,
+      user2,
+      // drawPlayer,
       addUser
     }
   }
