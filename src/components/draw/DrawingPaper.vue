@@ -84,6 +84,8 @@ export default defineComponent({
         canvas1.canvas.freeDrawingBrush.width = lineWidth.value
         canvas1.canvas.freeDrawingBrush.color = drawColor.value
       })
+
+      connectWebsocket()
     })
 
     onUpdated(() => {
@@ -128,18 +130,94 @@ export default defineComponent({
     }
 
     const test = () => {
-      console.log('test')
       if (canvas1.canvas === undefined) return
       canvas1.canvas.on('mouse:over', (e) => {
-        console.log(e.target)
-        console.log('done')
+        console.log('mouseover test')
       })
+      sendDrawingData()
     }
 
-    onUpdated(() => {
-      test()
-    })
+    const getRoomId = () => {
+      const room = window.location.pathname.split('/')
+      return room[room.length - 1]
+    }
+    const connectWebsocket = () => {
+      ws.onopen = () => {
+        console.log('Open websocket for drawing')
+      }
+      getMessage()
+    }
+    const ws: WebSocket = new WebSocket(
+      // 本番でwssになっていないバグ
+      (window.location.protocol == 'https' ? 'wss' : 'ws') +
+        '://' +
+        process.env.VUE_APP_BACKEND_URL +
+        'ws/draw' +
+        `/${getRoomId()}/`
+    )
+    const getMessage = () => {
+      ws.onmessage = (e) => {
+        let data = JSON.parse(e.data)
+        if (data.message.action === 'clear') {
+          canvas1.canvas?.clear()
+          return
+        }
 
+        data = data.message.drawInstruction
+
+        const path = new fabric.Path(data.pathCoordinates, {
+          stroke: data.stroke,
+          strokeWidth: data.strokeWidth,
+          strokeLineCap: data.strokeLineCap,
+          strokeLineJoin: data.strokeLineJoin,
+          shadow: data.shadow,
+          fill: data.fill
+        })
+
+        canvas1.canvas?.add(path)
+      }
+    }
+
+    const convertCoordinate = (arr: any[][]) => {
+      const coordinate = arr
+        .map((itemArr) => {
+          return itemArr.join(' ')
+        })
+        .join(' ')
+      return coordinate
+    }
+
+    const closeConnection = () => {
+      ws.onclose = () => {
+        console.error('Chat socket closed unexpectedly')
+      }
+    }
+
+    const sendDrawingData = () => {
+      canvas1.canvas?.on('path:created', (e: any) => {
+        console.log(e.path.path)
+        const pathCoordinates = convertCoordinate(e.path.path)
+
+        const drawInstruction = {
+          pathCoordinates: pathCoordinates,
+          stroke: e.path.stroke,
+          strokeWidth: e.path.strokeWidth,
+          strokeLineCap: e.path.strokeLineCap,
+          strokeLineJoin: e.path.strokeLineJoin,
+          shadow: e.path.shadow,
+          fill: false
+        }
+
+        ws.send(
+          JSON.stringify({
+            message: {
+              type: 'draw',
+              drawInstruction: drawInstruction
+            }
+          })
+        )
+      })
+    }
     return {
       lineWidth,
       colorPalette,
@@ -152,7 +230,12 @@ export default defineComponent({
       clear,
       eraser,
       setColor,
-      test
+      test,
+      getMessage,
+      closeConnection,
+      sendDrawingData,
+      connectWebsocket,
+      convertCoordinate
     }
   }
 })
