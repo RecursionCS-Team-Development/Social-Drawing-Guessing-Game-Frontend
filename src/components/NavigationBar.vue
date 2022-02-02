@@ -41,7 +41,7 @@
             <img class="avatar" :src="user.img" alt="Avatar" />
           </div>
           <ul class="dropdown-menu mt-2" aria-labelledby="dropdownMenuButton1">
-            <li v-for="(dropItem, index) in setDropItems" :key="index">
+            <li v-for="(dropItem, index) in dropItems" :key="index">
               <router-link
                 class="dropdown-item"
                 :to="dropItem.link"
@@ -98,16 +98,23 @@ export default defineComponent({
     const homeNotLogItems = [
       { name: 'ロビーへ', link: '/lobby', color: '#000000' }
     ]
-    const dropItems = [
-      {
-        name: user.name,
-        link: '/myPage',
-        color: '#000000',
-        method: ''
-      },
-      { name: '設定', link: '/settings', color: '#000000', method: '' },
-      { name: 'ログアウト', link: '/', color: '#000000', method: logoutSubmit }
-    ]
+    const dropItems = computed(() => {
+      return [
+        {
+          name: user.name,
+          link: '/myPage',
+          color: '#000000',
+          method: ''
+        },
+        { name: '設定', link: '/settings', color: '#000000', method: '' },
+        {
+          name: 'ログアウト',
+          link: '/',
+          color: '#000000',
+          method: logoutSubmit
+        }
+      ]
+    })
 
     const setNavItems = computed(() => {
       let routeName = String(router.currentRoute.value.name)
