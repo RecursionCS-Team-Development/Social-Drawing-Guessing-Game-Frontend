@@ -8,6 +8,11 @@
         </button>
       </div>
       <div class="row row-cols-2 row-cols-md-3 g-4 mt-2 mt-sm-5">
+        <!-- room list 取得ボタン -->
+        <button type="submit" class="btn btn-primary" @click="getRoomList">
+          一覧取得
+        </button>
+
         <template v-if="roomsStore.length">
           <div class="col" v-for="(room, index) in roomsStore" :key="index">
             <router-link
@@ -129,6 +134,7 @@ import { useStore } from '../store'
 
 import ConfirmButton from '../components/common/ConfirmButton.vue'
 import CancelButton from '../components/common/CancelButton.vue'
+import DrawingApiService from '../services/drawingApiService'
 
 import { User } from '../model/user'
 import { RoomHash } from '../interface/roomHash'
@@ -246,6 +252,16 @@ export default defineComponent({
       optionRounds.value = roomHash.round
     }
 
+    const getRoomList = async () => {
+      await DrawingApiService.getRoomsAPI()
+        .then((res) => {
+          console.log(res)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    }
+
     return {
       showModal,
       inputs,
@@ -256,7 +272,8 @@ export default defineComponent({
       cancelBtnText,
       confirmRoom,
       openModal,
-      closeModal
+      closeModal,
+      getRoomList
     }
   }
 })

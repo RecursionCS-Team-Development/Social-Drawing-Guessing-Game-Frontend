@@ -97,7 +97,7 @@ import { useStore } from '../store'
 import InputText from './../components/common/InputText.vue'
 import AuthLoginButton from './../components/common/AuthLoginButton.vue'
 import ConfirmButton from './../components/common/ConfirmButton.vue'
-import AccountApiService from '../services/apiService'
+import AccountApiService from '../services/accountApiService'
 
 interface InputTextInterface {
   icon: string

@@ -7,7 +7,7 @@ import { RoomHash } from '../interface/roomHash'
 import { RoomFactory } from '../model/roomFactory'
 import { Room } from '../model/room'
 
-import AccountApiService from '../services/apiService'
+import AccountApiService from '../services/accountApiService'
 
 export interface State {
   user: User
