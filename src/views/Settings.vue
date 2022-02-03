@@ -43,7 +43,7 @@
                   >{{ contentsItem.label }}</label
                 >
                 <input
-                  :value="userInfo[contentsItem.model]"
+                  :value="user[contentsItem.model]"
                   :type="contentsItem.type"
                   :id="contentsItem.id"
                   autocomplete="off"
@@ -63,7 +63,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRef, ref } from 'vue'
+import { defineComponent, ref } from 'vue'
+import { useStore } from '../store'
+import { User } from '../model/user'
 
 interface SidebarItem {
   name: string
@@ -80,10 +82,9 @@ interface ContentsItem {
 
 export default defineComponent({
   name: 'Settings',
-  props: ['user'],
-  components: {},
-  setup(props) {
-    let userInfo = toRef(props, 'user')
+  setup() {
+    const store = useStore()
+    let user: User = store.state.user
 
     let sidebarItems = ref([
       {
@@ -142,7 +143,7 @@ export default defineComponent({
     }
 
     return {
-      userInfo,
+      user,
       sidebarItems,
       contentsItems,
       contentsMailItems,

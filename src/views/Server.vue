@@ -123,7 +123,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, PropType } from 'vue'
+import { defineComponent, reactive, ref } from 'vue'
 import router from '../router'
 import { useStore } from '../store'
 
@@ -138,11 +138,9 @@ import { Player } from '../model/player'
 export default defineComponent({
   name: 'Server',
   components: { ConfirmButton, CancelButton },
-  props: {
-    user: Object as PropType<User>
-  },
   setup() {
     const store = useStore()
+    const user = store.state.user
     let roomsStore = store.state.rooms
 
     let roomHash = reactive({
@@ -247,6 +245,7 @@ export default defineComponent({
     }
 
     return {
+      user,
       showModal,
       inputs,
       selects,
