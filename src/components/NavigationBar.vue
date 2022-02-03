@@ -44,7 +44,7 @@
             <li v-for="(dropItem, index) in dropItems" :key="index">
               <router-link
                 class="dropdown-item"
-                :to="dropItem.link"
+                :to="dropItem.name"
                 :style="{ color: dropItem.color }"
                 @click="dropItem.method"
                 >{{ dropItem.name }}
@@ -98,6 +98,7 @@ export default defineComponent({
     const homeNotLogItems = [
       { name: 'ロビーへ', link: '/lobby', color: '#000000' }
     ]
+
     const dropItems = computed(() => {
       return [
         {

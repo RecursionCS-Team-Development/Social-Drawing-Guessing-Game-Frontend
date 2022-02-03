@@ -2,16 +2,17 @@ import { InjectionKey, reactive } from 'vue'
 import { createStore, useStore as baseUseStore, Store } from 'vuex'
 
 import { User } from '../model/user'
+import { RoomFactory } from '../model/roomFactory'
 
 import { RoomHash } from '../interface/roomHash'
-import { RoomFactory } from '../model/roomFactory'
-import { Room } from '../model/room'
+
+import { HitPictureRoom } from '@/model/hitPictureRoom'
 
 import AccountApiService from '../services/accountApiService'
 
 export interface State {
   user: User
-  rooms: Room[]
+  rooms: HitPictureRoom[]
 }
 
 export const key: InjectionKey<Store<State>> = Symbol()
@@ -22,6 +23,7 @@ export const store = createStore<State>({
       name: '',
       mail: '',
       password: '',
+      id: '',
       img: 'https://4.bp.blogspot.com/-bTipX3Vmpts/Wn1ZgUbOHXI/AAAAAAABKM4/b31Jvq8aWssiswuiO19BAJmmAC5WAzXwACLcBGAs/s800/character_boy_normal.png',
       profile: '',
       twitterAccount: '',
@@ -76,6 +78,7 @@ export const store = createStore<State>({
             name: res.data.username,
             mail: res.data.email,
             password: '',
+            id: '',
             img: res.data.icon,
             profile: res.data.profile,
             twitterAccount: '',

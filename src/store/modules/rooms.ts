@@ -1,18 +1,18 @@
-import { RoomHash } from '../../interface/roomHash'
-import { RoomFactory } from '../../model/roomFactory'
-import { Room } from '../../model/room'
+// import { RoomHash } from '../../interface/roomHash'
+// import { RoomFactory } from '../../model/roomFactory'
+// import { HitPictureRoom } from '../../model/hitPictureRoom'
 
-export interface State {
-  rooms: Room[]
-}
+// export interface State {
+//   rooms: HitPictureRoom[]
+// }
 
-export const roomsStore = {
-  state: {
-    rooms: []
-  },
-  mutations: {
-    addRoom(state: State, payload: RoomHash): void {
-      state.rooms.push(RoomFactory.makeRoom(payload))
-    }
-  }
-}
+// export const roomsStore = {
+//   state: {
+//     rooms: []
+//   },
+//   mutations: {
+//     addRoom(state: State, payload: RoomHash): void {
+//       state.rooms.push(RoomFactory.makeRoom(payload))
+//     }
+//   }
+// }

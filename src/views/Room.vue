@@ -1,6 +1,22 @@
 <template>
   <section class="room" style="background-color: #eee">
     <div class="container h-100 w-100">
+      <div class="d-flex align-items-center justify-content-around">
+        <button @click="addUser">user追加</button>
+        <h6>{{ room.getGamePhase() }}</h6>
+        <h6>時間 {{ room.getSecTime() }} s</h6>
+
+        <h6 v-if="room.getDrawerPlayer().id != user.id">
+          お題{{ room.getCurrTheme() }}(本来表示されない)
+        </h6>
+        <h6 v-else>お題{{ room.getCurrTheme() }}</h6>
+
+        <h6 v-if="room.getDrawerPlayer() && room.getGamePhase() === 'acting'">
+          描き手:{{ room.getDrawerPlayer().name }}さん
+        </h6>
+        <h6>{{ room.getCurrRound() }} / {{ room.round }}</h6>
+      </div>
+
       <div
         class="py-1 py-lg-3 row d-flex align-items-stretch justify-content-center"
       >
@@ -16,12 +32,7 @@
           </div>
 
           <div class="order-1 order-lg-3 w-100 row row-cols-6 mx-auto">
-            <PlayerList
-              v-for="(player, index) in players"
-              :player="player"
-              :key="index"
-              class="col p-sm-2 p-1"
-            />
+            <PlayerList :roomId="roomId" />
           </div>
         </div>
 
@@ -31,19 +42,23 @@
           <Chat :roomId="roomId" />
           <div class="d-flex justify-content-around action p-2 w-100">
             <button
+              v-if="room.getGamePhase() === 'ready'"
               type="button"
               class="btn btn-outline-primary"
               style="width: 45%"
             >
-              準備完了
+              準備完了(機能なし)
             </button>
-            <button
+            <router-link
+              v-if="room.getGamePhase() === 'end'"
               type="button"
               class="btn btn-outline-secondary"
               style="width: 45%"
+              :to="'/lobby'"
+              tag="button"
             >
               退出
-            </button>
+            </router-link>
           </div>
         </div>
       </div>
@@ -59,6 +74,8 @@ import PencilCase from './../components/draw/PencilCase.vue'
 import PlayerList from './../components/screen/PlayerList.vue'
 import Chat from '../components/screen/Chat.vue'
 import { Player } from '../model/player'
+import { User } from '../model/user'
+import { HitPictureRoom } from '../model/hitPictureRoom'
 
 export default defineComponent({
   name: 'room',
@@ -68,11 +85,36 @@ export default defineComponent({
     let roomId = toRef(props, 'roomId')
 
     const store = useStore()
-    let room = store.state.rooms[Number(roomId.value - 1)]
-    let players: Player[] = room.getParticipants()
+    let room: HitPictureRoom = store.state.rooms[Number(roomId.value - 1)]
+    let user: User = store.state.user
+    let players: Player[] = room.getPlayers()
+    const user2 = new User(
+      'ユーザー2',
+      '@gmail.com',
+      '2345678',
+      '5678',
+      'https://4.bp.blogspot.com/-7ArmuhZRYmE/Wn1Zk_UUyHI/AAAAAAABKNg/uXtlYDHauv8RVt54J0qxKbEGS8jYYCCgACLcBGAs/s400/character_girl_normal.png',
+      'よろしくお願いします',
+      '',
+      false,
+      ''
+    )
+    const addUser = () => room.phaseAction(user2)
+
+    // const drawPlayer = computed(() => {
+    //   if (room.getShufflePlayers().length != 0) {
+    //     return room.getDrawerPlayer().name
+    //   }
+    //   return room.getDrawerPlayer()
+    // })
+
     return {
       room,
-      players
+      players,
+      user,
+      user2,
+      // drawPlayer,
+      addUser
     }
   }
 })
