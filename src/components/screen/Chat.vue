@@ -4,7 +4,7 @@
       <h2 class="text-start p-2 m-0">Chat log</h2>
       <div class="dropdown-divider"></div>
       <div class="px-1 overflow-scroll chat_wrapper">
-        <TextLine v-for="(chat, index) in chats" :key="index" :chat="chat" />
+        <TextLine />
       </div>
     </div>
     <div class="d-flex align-items-center p-2">
@@ -28,23 +28,24 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, onActivated } from 'vue'
 import TextLine from './TextLine.vue'
-
-interface Chat {
-  name: string
-  comment: string
-  img: string
-}
+import { useStore } from '../../store'
+import { Chat } from '../../interface/chat'
+import { User } from '../../model/user'
+import { SendChatData } from '../../type/sendChatData'
 
 export default defineComponent({
   name: 'chat',
   components: { TextLine },
   setup() {
-    const userAnswer = ref<string>('')
-    let chats = ref<Chat[]>([])
     const getRoomId = () => {
       const room = window.location.pathname.split('/')
       return room[room.length - 1]
     }
+    const store = useStore()
+    let user: User = store.state.user
+    let room = store.state.rooms[Number(getRoomId()) - 1]
+    let chats: Chat[] = room.getChatLog()
+    const userAnswer = ref<string>('')
 
     const ws: WebSocket = new WebSocket(
       (window.location.protocol == 'https' ? 'wss' : 'ws') +
@@ -65,8 +66,11 @@ export default defineComponent({
       if (userAnswer.value === '') return
       const sendData = {
         type: 'send message',
+        playerName: user.name,
+        playerImg: user.img,
+        playerId: user.id,
         message: userAnswer.value
-      }
+      } as SendChatData
       const data = JSON.stringify(sendData)
       ws.send(data)
       userAnswer.value = ''
@@ -74,17 +78,13 @@ export default defineComponent({
 
     const getMessage = () => {
       ws.onmessage = (e) => {
-        const dataFromDjango = JSON.parse(e.data)
+        const dataFromDjango: SendChatData = JSON.parse(e.data)
         switch (dataFromDjango.type) {
           case 'connection established':
-            console.log(dataFromDjango.message)
             break
-          default:
-            chats.value.push({
-              name: 'testUser',
-              comment: dataFromDjango.message,
-              img: 'https://i.imgur.com/bDLhJiP.jpg'
-            })
+          default: {
+            room.addChat(dataFromDjango)
+          }
         }
       }
     }
@@ -106,6 +106,7 @@ export default defineComponent({
 
     return {
       chats,
+      user,
       userAnswer,
       connectSocket,
       disconnect,
