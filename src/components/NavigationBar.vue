@@ -144,7 +144,6 @@ export default defineComponent({
       } else return []
     })
 
-
     return {
       user,
       initialPage,

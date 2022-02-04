@@ -123,12 +123,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref } from 'vue'
+import { defineComponent, reactive, ref, PropType, onMounted } from 'vue'
 import router from '../router'
 import { useStore } from '../store'
 
 import ConfirmButton from '../components/common/ConfirmButton.vue'
 import CancelButton from '../components/common/CancelButton.vue'
+import DrawingApiService from '../services/drawingApiService'
 
 import { User } from '../model/user'
 import { RoomHash } from '../interface/roomHash'
@@ -243,6 +244,10 @@ export default defineComponent({
       selects[2].selected = roomHash.level
       optionRounds.value = roomHash.round
     }
+
+    onMounted(() => {
+      store.dispatch('setRoomInfo')
+    })
 
     return {
       user,

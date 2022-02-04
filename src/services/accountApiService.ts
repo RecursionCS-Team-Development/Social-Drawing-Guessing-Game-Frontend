@@ -1,4 +1,5 @@
 import api from './http_common'
+
 class AccountApiService {
   protected _auth = 'api/auth/'
 
