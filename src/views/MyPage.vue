@@ -4,13 +4,13 @@
       <div class="profile d-flex mt-sm-5 mt-2 flex-column flex-sm-row">
         <div>
           <figure class="d-flex avatar_wrapper m-auto">
-            <img class="avatar" :src="userInfo.img" alt="Avatar" />
+            <img class="avatar" :src="user.img" alt="Avatar" />
           </figure>
         </div>
 
         <div class="ms-sm-2 mt-sm-0 mt-2">
-          <h1 class="fw-bold">{{ userInfo.name }}</h1>
-          <p>{{ userInfo.profile }}</p>
+          <h1 class="fw-bold">{{ user.name }}</h1>
+          <p>{{ user.profile }}</p>
           <div class="d-flex justify-content-sm-start justify-content-center">
             <a href="https://twitter.com/" target="_blank">
               <i class="fab fa-twitter pe-2"></i>
@@ -64,11 +64,7 @@
                       tabindex="-1"
                       style="display: none"
                     />
-                    <img
-                      :src="userInfo.img"
-                      class="img_edit"
-                      alt="ユーザー画像"
-                    />
+                    <img :src="user.img" class="img_edit" alt="ユーザー画像" />
                     <i
                       class="fas fa-camera img_edit_icon"
                       style="color: #fff"
@@ -79,7 +75,7 @@
                   <i class="fas fa-user fa-lg me-3 fa-fw"></i>
                   <div class="form-outline flex-fill mb-0">
                     <input
-                      v-model="userInfo.name"
+                      v-model="user.name"
                       type="text"
                       id="form3Example1c"
                       class="form-control"
@@ -90,7 +86,7 @@
                   <i class="fas fa-pen fa-lg me-3 fa-fw"></i>
                   <div class="form-outline flex-fill mb-0">
                     <textarea
-                      v-model="userInfo.profile"
+                      v-model="user.profile"
                       type="text"
                       id="form3Example1c"
                       class="form-control"
@@ -103,7 +99,7 @@
                     <i class="fab fa-twitter fa-lg me-3 fa-fw"></i>
                     <div class="form-outline flex-fill mb-0">
                       <input
-                        v-model="userInfo.twitterAccount"
+                        v-model="user.twitterAccount"
                         type="text"
                         id="form3Example1c"
                         class="form-control"
@@ -144,13 +140,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRef } from 'vue'
+import { defineComponent } from 'vue'
+import { useStore } from '../store'
+import { User } from '../model/user'
 
 export default defineComponent({
   name: 'MyPage',
-  props: ['user'],
-  setup(props) {
-    let userInfo = toRef(props, 'user')
+  setup() {
+    const store = useStore()
+    let user: User = store.state.user
 
     let posts = [
       {
@@ -168,7 +166,7 @@ export default defineComponent({
     ]
 
     return {
-      userInfo,
+      user,
       posts
     }
   }

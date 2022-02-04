@@ -109,7 +109,6 @@ export const store = createStore<State>({
       await DrawingApiService.getRoomsAPI()
         .then((res) => {
           const rooms = res.data.results
-          const hitPictureRooms = []
 
           for (const room of rooms) {
             const roomHash = reactive({
