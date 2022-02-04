@@ -8,11 +8,6 @@
         </button>
       </div>
       <div class="row row-cols-2 row-cols-md-3 g-4 mt-2 mt-sm-5">
-        <!-- room list 取得ボタン -->
-        <button type="submit" class="btn btn-primary" @click="getRoomList">
-          一覧取得
-        </button>
-
         <template v-if="roomsStore.length">
           <div class="col" v-for="(room, index) in roomsStore" :key="index">
             <router-link
@@ -128,7 +123,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, PropType } from 'vue'
+import { defineComponent, reactive, ref, PropType, onMounted } from 'vue'
 import router from '../router'
 import { useStore } from '../store'
 
@@ -252,15 +247,9 @@ export default defineComponent({
       optionRounds.value = roomHash.round
     }
 
-    const getRoomList = async () => {
-      await DrawingApiService.getRoomsAPI()
-        .then((res) => {
-          console.log(res)
-        })
-        .catch((error) => {
-          console.log(error)
-        })
-    }
+    onMounted(() => {
+      store.dispatch('setRoomInfo')
+    })
 
     return {
       showModal,
@@ -272,8 +261,7 @@ export default defineComponent({
       cancelBtnText,
       confirmRoom,
       openModal,
-      closeModal,
-      getRoomList
+      closeModal
     }
   }
 })
