@@ -123,12 +123,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, PropType } from 'vue'
+import { defineComponent, reactive, ref, PropType, onMounted } from 'vue'
 import router from '../router'
 import { useStore } from '../store'
 
 import ConfirmButton from '../components/common/ConfirmButton.vue'
 import CancelButton from '../components/common/CancelButton.vue'
+import DrawingApiService from '../services/drawingApiService'
 
 import { User } from '../model/user'
 import { RoomHash } from '../interface/roomHash'
@@ -138,11 +139,9 @@ import { Player } from '../model/player'
 export default defineComponent({
   name: 'Server',
   components: { ConfirmButton, CancelButton },
-  props: {
-    user: Object as PropType<User>
-  },
   setup() {
     const store = useStore()
+    const user = store.state.user
     let roomsStore = store.state.rooms
 
     let roomHash = reactive({
@@ -246,7 +245,12 @@ export default defineComponent({
       optionRounds.value = roomHash.round
     }
 
+    onMounted(() => {
+      store.dispatch('setRoomInfo')
+    })
+
     return {
+      user,
       showModal,
       inputs,
       selects,

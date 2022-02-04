@@ -1,11 +1,12 @@
 <template>
   <div id="app">
     <header>
-      <NavigationBar :user="user" />
+      <NavigationBar v-if="$route.name != 'Room'" />
+      <GameBar v-else />
     </header>
 
     <main>
-      <router-view class="center SiteWrapper" :user="user" />
+      <router-view class="center SiteWrapper" />
     </main>
 
     <footer>
@@ -23,23 +24,20 @@
 <script lang="ts">
 import { defineComponent, onMounted } from 'vue'
 import NavigationBar from './components/NavigationBar.vue'
+import GameBar from './components/GameBar.vue'
 import { useStore } from '../src/store'
 
 export default defineComponent({
   name: 'App',
   components: {
-    NavigationBar
+    NavigationBar,
+    GameBar
   },
   setup() {
     const store = useStore()
-    let user = store.state.user
     onMounted(() => {
       store.dispatch('login')
     })
-
-    return {
-      user
-    }
   }
 })
 </script>

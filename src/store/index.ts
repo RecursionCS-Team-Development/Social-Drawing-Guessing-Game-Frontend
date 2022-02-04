@@ -8,7 +8,9 @@ import { RoomHash } from '../interface/roomHash'
 
 import { HitPictureRoom } from '@/model/hitPictureRoom'
 
-import AccountApiService from '../services/apiService'
+import AccountApiService from '../services/accountApiService'
+import DrawingApiService from '../services/drawingApiService'
+import { Player } from '@/model/player'
 
 export interface State {
   user: User
@@ -65,7 +67,7 @@ export const store = createStore<State>({
           commit('setAccessToken', accessToken)
         })
         .catch((error) => {
-          console.log(error.response)
+          // console.log(error.response)
         })
 
       //loginしているuserの情報を取得
@@ -89,7 +91,7 @@ export const store = createStore<State>({
           commit('setUserInfo', user)
         })
         .catch((error) => {
-          console.log(error)
+          // console.log(error)
         })
     },
     async logout({ commit, state }) {
@@ -98,6 +100,46 @@ export const store = createStore<State>({
         .then((res) => {
           const payload = ''
           commit('removeAccessToken', payload)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    },
+    async setRoomInfo({ commit, state }) {
+      await DrawingApiService.getRoomsAPI()
+        .then((res) => {
+          const rooms = res.data.results
+
+          for (const room of rooms) {
+            const roomHash = reactive({
+              name: room.name,
+              password: room.password,
+              entryNum: room.entryNum,
+              mode: room.mode,
+              level: room.level,
+              round: room.round,
+              players: [],
+              link: '/room/' + Number(state.rooms.length + 1)
+            }) as RoomHash
+
+            for (const member of room.members) {
+              const user = reactive({
+                name: member.user.username,
+                mail: member.user.email,
+                password: '',
+                id: member.user.id,
+                img: 'https://4.bp.blogspot.com/-bTipX3Vmpts/Wn1ZgUbOHXI/AAAAAAABKM4/b31Jvq8aWssiswuiO19BAJmmAC5WAzXwACLcBGAs/s800/character_boy_normal.png',
+                profile: '',
+                twitterAccount: '',
+                login: true,
+                accessToken: ''
+              }) as User
+
+              roomHash.players.push(new Player(user))
+            }
+
+            commit('addRoom', roomHash)
+          }
         })
         .catch((error) => {
           console.log(error)

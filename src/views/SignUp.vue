@@ -77,7 +77,7 @@ import { useRouter } from 'vue-router'
 import InputText from './../components/common/InputText.vue'
 import ConfirmButton from './../components/common/ConfirmButton.vue'
 
-import AccountApiService from '../services/apiService'
+import AccountApiService from '../services/accountApiService'
 
 export default defineComponent({
   name: 'SignIn',
