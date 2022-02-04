@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-for="(player, index) in players" :key="index" class="col p-sm-2 p-1">
     <figure class="d-flex avatar_wrapper m-auto">
       <img class="avatar" :src="player.img" alt="Avatar" />
     </figure>
@@ -16,15 +16,21 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, toRef } from 'vue'
 import { Player } from '../../model/player'
+import { useStore } from '../../store'
 
 export default defineComponent({
   name: 'playerList',
-  props: {
-    player: {
-      type: Object as PropType<Player>,
-      required: true
+  props: ['roomId'],
+  setup(props) {
+    let roomId = toRef(props, 'roomId')
+    const store = useStore()
+    let room = store.state.rooms[Number(roomId.value - 1)]
+    let players: Player[] = room.getPlayers()
+
+    return {
+      players
     }
   }
 })

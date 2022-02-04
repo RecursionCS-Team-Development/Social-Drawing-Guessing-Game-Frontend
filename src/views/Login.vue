@@ -1,6 +1,10 @@
 <template>
   <section class="login h-100" style="background-color: #eee">
     <div class="container h-100">
+      <!-- Error Message -->
+      <div v-if="is_error" class="mt-3 alert alert-danger" role="alert">
+        {{ errorMessage }}
+      </div>
       <div
         class="row d-flex justify-content-center align-items-center h-100 my-4"
       >
@@ -35,6 +39,7 @@
                       v-for="(ele, index) in inputs"
                       :post="ele"
                       :key="index"
+                      :v-model="ele.text"
                     />
 
                     <div
@@ -55,7 +60,7 @@
                     </div>
 
                     <div class="text-center mb-3 mb-lg-4">
-                      <ConfirmButton :text="confirm" />
+                      <ConfirmButton :text="confirm" @click="loginSubmit" />
 
                       <div class="mt-4">
                         <p class="small fw-bold mt-2 pt-1 mb-0 text-end">
@@ -85,10 +90,21 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useStore } from '../store'
+
 import InputText from './../components/common/InputText.vue'
 import AuthLoginButton from './../components/common/AuthLoginButton.vue'
 import ConfirmButton from './../components/common/ConfirmButton.vue'
+import AccountApiService from '../services/accountApiService'
+
+interface InputTextInterface {
+  icon: string
+  inputType: string
+  placeholder: string
+  text: string
+}
 
 export default defineComponent({
   name: 'Login',
@@ -110,24 +126,50 @@ export default defineComponent({
         text: 'Google'
       }
     ]
-    const inputs: { icon: string; inputType: string; placeholder: string }[] = [
+    const inputs: InputTextInterface[] = reactive([
       {
         icon: 'fa-envelope',
         inputType: 'email',
-        placeholder: 'Type Your Email'
+        placeholder: 'Type Your Email',
+        text: ''
       },
       {
         icon: 'fa-lock',
         inputType: 'password',
-        placeholder: 'Type Your Password'
+        placeholder: 'Type Your Password',
+        text: ''
       }
-    ]
+    ])
     const confirm = 'Login'
+
+    const store = useStore()
+    const router = useRouter()
+
+    let is_error = ref(false)
+    let errorMessage = ref('')
+
+    const loginSubmit = async () => {
+      let email = inputs[0].text
+      let password = inputs[1].text
+
+      await AccountApiService.loginAPI(email, password)
+        .then((res) => {
+          store.dispatch('login')
+          router.push('/lobby')
+        })
+        .catch((error) => {
+          is_error.value = true
+          errorMessage.value = 'メールアドレスまたはパスワードが違います'
+        })
+    }
 
     return {
       auths,
       inputs,
-      confirm
+      confirm,
+      is_error,
+      errorMessage,
+      loginSubmit
     }
   }
 })

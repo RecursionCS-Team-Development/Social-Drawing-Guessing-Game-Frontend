@@ -9,8 +9,8 @@
     "lint": "vue-cli-service lint",
     "prepare": "husky install",
     "lint-staged": "lint-staged",
-    "format": "prettier -w src/*.{ts,vue} && prettier -w src/**/*.{ts,vue}",
-    "eslint": "eslint --fix src/*.{ts,vue} && eslint --fix src/**/*.{ts,vue}"
+    "format": "prettier -w src/**/**.{ts,vue}",
+    "eslint": "eslint --fix src/**/**.{ts,vue}"
   },
   "dependencies": {
     "axios": "^0.24.0",
@@ -22,6 +22,7 @@
     "vuex": "^4.0.0-0"
   },
   "devDependencies": {
+    "@types/axios": "^0.14.0",
     "@types/bootstrap": "^5.1.9",
     "@types/fabric": "^4.5.6",
     "@types/node": "^17.0.13",

@@ -1,11 +1,12 @@
 <template>
   <div id="app">
     <header>
-      <NavigationBar :user="user" />
+      <NavigationBar v-if="$route.name != 'Room'" />
+      <GameBar v-else />
     </header>
 
     <main>
-      <router-view class="center SiteWrapper" :user="user" />
+      <router-view class="center SiteWrapper" />
     </main>
 
     <footer>
@@ -21,37 +22,22 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from 'vue'
+import { defineComponent, onMounted } from 'vue'
 import NavigationBar from './components/NavigationBar.vue'
-import http from './http_common'
-
-import { User } from './model/user'
+import GameBar from './components/GameBar.vue'
+import { useStore } from '../src/store'
 
 export default defineComponent({
   name: 'App',
   components: {
-    NavigationBar
+    NavigationBar,
+    GameBar
   },
   setup() {
-    let user = reactive<User>({
-      name: 'ユーザー1',
-      mail: '@gmail.com',
-      password: '12345678',
-      img: 'https://4.bp.blogspot.com/-bTipX3Vmpts/Wn1ZgUbOHXI/AAAAAAABKM4/b31Jvq8aWssiswuiO19BAJmmAC5WAzXwACLcBGAs/s800/character_boy_normal.png',
-      profile: 'よろしくお願いします',
-      twitterAccount: '',
-      login: false
+    const store = useStore()
+    onMounted(() => {
+      store.dispatch('login')
     })
-
-    const getApi = async () => {
-      const temp = await http.get('api/auth')
-      console.log(temp)
-    }
-
-    return {
-      user,
-      getApi
-    }
   }
 })
 </script>

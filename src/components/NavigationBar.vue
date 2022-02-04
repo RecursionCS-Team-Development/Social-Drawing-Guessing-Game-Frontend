@@ -1,12 +1,13 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid container">
-      <router-link
+      <div
         class="navbar-brand d-flex align-items-center"
-        to="/"
+        @click="logoLink()"
         style="width: 50px; height: 50px"
-        ><img src="../../public/logo.png" alt="logo" style="width: 70px"
-      /></router-link>
+      >
+        <img src="../../public/logo.png" alt="logo" style="width: 70px" />
+      </div>
       <button
         class="navbar-toggler"
         type="button"
@@ -27,7 +28,7 @@
           class="dropdown"
           v-if="
             !initialPage.includes(String($router.currentRoute.value.name)) &&
-            userInfo.login == true
+            user.login == true
           "
         >
           <div
@@ -41,11 +42,12 @@
             <img class="avatar" :src="user.img" alt="Avatar" />
           </div>
           <ul class="dropdown-menu mt-2" aria-labelledby="dropdownMenuButton1">
-            <li v-for="(dropItem, index) in setDropItems" :key="index">
+            <li v-for="(dropItem, index) in dropItems" :key="index">
               <router-link
                 class="dropdown-item"
                 :to="dropItem.link"
                 :style="{ color: dropItem.color }"
+                @click="dropItem.method"
                 >{{ dropItem.name }}
               </router-link>
             </li>
@@ -65,23 +67,39 @@
         </ul>
       </div>
     </div>
-    <div>{{ userInfo.login }}</div>
-    <button @click="change" class="mx-2">ログ切替</button>
   </nav>
 </template>
 
 <script lang="ts">
-import { defineComponent, toRef, computed } from 'vue'
-import router from '../router'
+import { defineComponent, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useStore } from '../store'
 
 export default defineComponent({
   name: 'navBar',
-  props: ['user'],
-  setup(props) {
-    let userInfo = toRef(props, 'user')
+  setup() {
+    const store = useStore()
+    const router = useRouter()
+    const user = store.state.user
+    const logoutSubmit = () => {
+      store.dispatch('logout')
+    }
 
-    const change = () => (userInfo.value.login = !userInfo.value.login) //ログイン切り替え
+    const nonMethod = () => {
+      return
+    }
 
+    const logoLink = () => {
+      if (user.login) {
+        router.push({
+          name: 'Lobby'
+        })
+      } else {
+        router.push({
+          name: 'Home'
+        })
+      }
+    }
     const initialPage = ['Home', 'LogIn', 'SignUp']
     const logSignPage = ['LogIn', 'SignUp']
     const homeLogItems = [
@@ -92,34 +110,51 @@ export default defineComponent({
     const homeNotLogItems = [
       { name: 'ロビーへ', link: '/lobby', color: '#000000' }
     ]
-    const dropItems = [
-      { name: userInfo.value.name, link: '/myPage', color: '#000000' },
-      { name: '設定', link: '/settings', color: '#000000' },
-      { name: 'ログアウト', link: '/', color: '#000000' }
-    ]
+
+    const dropItems = computed(() => {
+      return [
+        {
+          name: user.name,
+          link: '/myPage',
+          color: '#000000',
+          method: nonMethod
+        },
+        {
+          name: '設定',
+          link: '/settings',
+          color: '#000000',
+          method: nonMethod
+        },
+        {
+          name: 'ログアウト',
+          link: '/',
+          color: '#000000',
+          method: logoutSubmit
+        }
+      ]
+    })
 
     const setNavItems = computed(() => {
       let routeName = String(router.currentRoute.value.name)
 
-      if (!logSignPage.includes(routeName) && userInfo.value.login == false) {
+      if (!logSignPage.includes(routeName) && user.login == false) {
         return homeLogItems
-      } else if (routeName === 'Home' && userInfo.value.login == true) {
+      } else if (routeName === 'Home' && user.login == true) {
         return homeNotLogItems
       } else return []
     })
 
-    const setDropItems = computed(() => dropItems)
-
     return {
-      userInfo,
-      change,
+      user,
       initialPage,
       logSignPage,
-      setDropItems,
       setNavItems,
       homeLogItems,
       homeNotLogItems,
-      dropItems
+      dropItems,
+      logoLink,
+      logoutSubmit,
+      nonMethod
     }
   }
 })
