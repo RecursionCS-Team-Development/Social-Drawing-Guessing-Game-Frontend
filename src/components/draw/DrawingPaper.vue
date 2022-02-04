@@ -1,27 +1,5 @@
 <template>
   <div>
-    <div class="d-flex justify-content-around">
-      <button @click="save">Save</button>
-      <button @click="load">Load</button>
-      <button @click="pen">Pen</button>
-      <input
-        @change="setColor"
-        type="color"
-        ref="colorPalette"
-        list=""
-        :value="drawColor"
-      />
-      <button @click="eraser">Eraser</button>
-
-      <div class="d-flex">
-        <label for="customRange1" class="form-label px-2">{{
-          lineWidth
-        }}</label>
-        <input type="range" max="20" min="1" v-model="lineWidth" />
-      </div>
-      <button @click="clear">Clear</button>
-    </div>
-
     <div
       class="order-2 order-lg-1 canvas_wrapper border"
       ref="canvasRef"
@@ -39,10 +17,12 @@ import {
   nextTick,
   reactive,
   ref,
-  onUpdated
+  onUpdated,
+  toRef,
+  PropType
 } from 'vue'
 import { fabric } from 'fabric'
-import { useStore } from '../../store'
+import { PencilCaseSetting } from '../../interface/pencilCaseSetting'
 
 interface Canvas {
   canvas: fabric.Canvas | undefined
@@ -50,19 +30,16 @@ interface Canvas {
 
 export default defineComponent({
   name: 'canvas',
-  setup() {
+  props: { pencilCaseSettings: Object as PropType<PencilCaseSetting> },
+  setup(props) {
     const getRoomId = () => {
       const room = window.location.pathname.split('/')
       return room[room.length - 1]
     }
-    const store = useStore()
-    let room = store.state.rooms[Number(getRoomId()) - 1]
+    let pencilCaseSetting = toRef(props, 'pencilCaseSettings')
 
     let canvasRef = ref<HTMLDivElement>()
     let colorPalette = ref<HTMLInputElement>()
-    let lineWidth = ref(10)
-    let drawColor = ref('#000000')
-    const eraserColor = ref('rgb(238,238,238)')
     let canvas1 = reactive<Canvas>({
       canvas: undefined
     })
@@ -89,8 +66,12 @@ export default defineComponent({
           isDrawingMode: true
         })
         canvas1.canvas.isDrawingMode = true
-        canvas1.canvas.freeDrawingBrush.width = lineWidth.value
-        canvas1.canvas.freeDrawingBrush.color = drawColor.value
+        if (pencilCaseSetting.value) {
+          canvas1.canvas.freeDrawingBrush.width =
+            pencilCaseSetting.value.penBold
+          canvas1.canvas.freeDrawingBrush.color =
+            pencilCaseSetting.value.drawColor
+        }
       })
 
       connectWebsocket()
@@ -102,8 +83,10 @@ export default defineComponent({
           String(Number(canvasRef.value?.style.width) * 0.5625) + 'px'
       }
 
-      if (canvas1.canvas?.freeDrawingBrush) {
-        canvas1.canvas.freeDrawingBrush.width = Number(lineWidth.value)
+      if (canvas1.canvas?.freeDrawingBrush && pencilCaseSetting.value) {
+        canvas1.canvas.freeDrawingBrush.width = Number(
+          pencilCaseSetting.value.penBold
+        )
       }
     })
 
@@ -119,7 +102,8 @@ export default defineComponent({
 
     const pen = () => {
       let brush = canvas1.canvas?.freeDrawingBrush
-      if (brush?.color) brush.color = drawColor.value
+      if (brush?.color && pencilCaseSetting.value)
+        brush.color = pencilCaseSetting.value.drawColor
     }
 
     const clear = () => {
@@ -128,13 +112,21 @@ export default defineComponent({
 
     const eraser = () => {
       let brush = canvas1.canvas?.freeDrawingBrush
-      if (brush?.color) brush.color = eraserColor.value
+      if (brush?.color && pencilCaseSetting.value)
+        brush.color = pencilCaseSetting.value.eraserColor
     }
 
-    const setColor = () => {
-      drawColor.value = String(colorPalette?.value?.value)
+    const setColor = (color: string) => {
       let brush = canvas1.canvas?.freeDrawingBrush
-      if (brush?.color) brush.color = drawColor.value
+      if (brush?.color && pencilCaseSetting.value) brush.color = color
+    }
+
+    const setBold = () => {
+      if (canvas1.canvas?.freeDrawingBrush && pencilCaseSetting.value) {
+        canvas1.canvas.freeDrawingBrush.width = Number(
+          pencilCaseSetting.value.penBold
+        )
+      }
     }
 
     const test = () => {
@@ -145,10 +137,6 @@ export default defineComponent({
       sendDrawingData()
     }
 
-    // const getRoomId = () => {
-    //   const room = window.location.pathname.split('/')
-    //   return room[room.length - 1]
-    // }
     const connectWebsocket = () => {
       ws.onopen = () => {
         console.log('Open websocket for drawing')
@@ -163,6 +151,7 @@ export default defineComponent({
         'ws/draw' +
         `/${getRoomId()}/`
     )
+
     const getMessage = () => {
       ws.onmessage = (e) => {
         let data = JSON.parse(e.data)
@@ -227,10 +216,8 @@ export default defineComponent({
       })
     }
     return {
-      lineWidth,
+      pencilCaseSetting,
       colorPalette,
-      drawColor,
-      eraserColor,
       canvasRef,
       save,
       load,
@@ -238,6 +225,7 @@ export default defineComponent({
       clear,
       eraser,
       setColor,
+      setBold,
       test,
       getMessage,
       closeConnection,
