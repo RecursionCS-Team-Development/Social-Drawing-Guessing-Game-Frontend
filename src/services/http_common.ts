@@ -1,8 +1,8 @@
 import axios from 'axios'
 
 const api = axios.create({
-  // baseURL: 'https://social-drawing-guessing-game.herokuapp.com/',
-  baseURL: 'http://localhost:8000/',
+  baseURL: 'https://social-drawing-guessing-game.herokuapp.com/',
+  // baseURL: 'http://localhost:8000/',
   withCredentials: true,
   timeout: 5000,
   headers: {
