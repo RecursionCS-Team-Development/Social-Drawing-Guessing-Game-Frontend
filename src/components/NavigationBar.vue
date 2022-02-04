@@ -1,12 +1,13 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid container">
-      <router-link
+      <div
         class="navbar-brand d-flex align-items-center"
-        to="/"
+        @click="logoLink()"
         style="width: 50px; height: 50px"
-        ><img src="../../public/logo.png" alt="logo" style="width: 70px"
-      /></router-link>
+      >
+        <img src="../../public/logo.png" alt="logo" style="width: 70px" />
+      </div>
       <button
         class="navbar-toggler"
         type="button"
@@ -44,7 +45,7 @@
             <li v-for="(dropItem, index) in dropItems" :key="index">
               <router-link
                 class="dropdown-item"
-                :to="dropItem.name"
+                :to="dropItem.link"
                 :style="{ color: dropItem.color }"
                 @click="dropItem.method"
                 >{{ dropItem.name }}
@@ -66,8 +67,6 @@
         </ul>
       </div>
     </div>
-    <div>{{ user.login }}</div>
-    <button @click="change" class="mx-2">ログ切替</button>
   </nav>
 </template>
 
@@ -86,8 +85,21 @@ export default defineComponent({
       store.dispatch('logout')
     }
 
-    const change = () => (user.login = !user.login) //ログイン切り替え
+    const nonMethod = () => {
+      return
+    }
 
+    const logoLink = () => {
+      if (user.login) {
+        router.push({
+          name: 'Lobby'
+        })
+      } else {
+        router.push({
+          name: 'Home'
+        })
+      }
+    }
     const initialPage = ['Home', 'LogIn', 'SignUp']
     const logSignPage = ['LogIn', 'SignUp']
     const homeLogItems = [
@@ -105,9 +117,14 @@ export default defineComponent({
           name: user.name,
           link: '/myPage',
           color: '#000000',
-          method: ''
+          method: nonMethod
         },
-        { name: '設定', link: '/settings', color: '#000000', method: '' },
+        {
+          name: '設定',
+          link: '/settings',
+          color: '#000000',
+          method: nonMethod
+        },
         {
           name: 'ログアウト',
           link: '/',
@@ -127,19 +144,18 @@ export default defineComponent({
       } else return []
     })
 
-    const setDropItems = computed(() => dropItems)
 
     return {
       user,
-      change,
       initialPage,
       logSignPage,
-      setDropItems,
       setNavItems,
       homeLogItems,
       homeNotLogItems,
       dropItems,
-      logoutSubmit
+      logoLink,
+      logoutSubmit,
+      nonMethod
     }
   }
 })
