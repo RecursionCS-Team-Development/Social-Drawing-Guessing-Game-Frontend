@@ -3,12 +3,13 @@
     <div class="log">
       <h2 class="text-start p-2 m-0">Chat log</h2>
       <div class="dropdown-divider"></div>
-      <div class="px-1 overflow-scroll chat_wrapper">
+      <div class="px-1 overflow-scroll chat_wrapper" id="chats">
         <TextLine />
       </div>
     </div>
     <div class="d-flex align-items-center p-2">
       <input
+        @keydown.enter="sendAnswer"
         type="text"
         class="form-control"
         placeholder="Type a message"
@@ -26,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, onActivated } from 'vue'
+import { defineComponent, ref, onMounted, onActivated, nextTick } from 'vue'
 import TextLine from './TextLine.vue'
 import { useStore } from '../../store'
 import { Chat } from '../../interface/chat'
@@ -84,6 +85,12 @@ export default defineComponent({
             break
           default: {
             room.addChat(dataFromDjango)
+            nextTick(() => {
+              const scrollArea = document.getElementById('chats')
+              if (scrollArea) {
+                scrollArea.scrollTop = scrollArea.scrollHeight
+              }
+            })
           }
         }
       }
