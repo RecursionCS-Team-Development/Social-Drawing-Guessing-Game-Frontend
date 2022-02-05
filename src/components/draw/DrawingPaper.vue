@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div
-      class="order-2 order-lg-1 canvas_wrapper border"
-      ref="canvasRef"
-      @mouseover="test"
-    >
+    <div class="d-flex justify-content-around">
+      <button @click="undo">Undo</button>
+      <button @click="redo">Redo</button>
+    </div>
+    <div class="order-2 order-lg-1 canvas_wrapper border" ref="canvasRef">
       <canvas id="canvas"></canvas>
     </div>
   </div>
@@ -23,6 +23,7 @@ import {
 } from 'vue'
 import { fabric } from 'fabric'
 import { PencilCaseSetting } from '../../interface/pencilCaseSetting'
+import { Stack } from '../../model/stack'
 
 interface Canvas {
   canvas: fabric.Canvas | undefined
@@ -32,6 +33,9 @@ export default defineComponent({
   name: 'canvas',
   props: { pencilCaseSettings: Object as PropType<PencilCaseSetting> },
   setup(props) {
+    let undoStack = new Stack()
+    let redoStack = new Stack()
+
     const getRoomId = () => {
       const room = window.location.pathname.split('/')
       return room[room.length - 1]
@@ -72,9 +76,12 @@ export default defineComponent({
           canvas1.canvas.freeDrawingBrush.color =
             pencilCaseSetting.value.drawColor
         }
-      })
+        canvas1.canvas?.on('path:created', (e) => {
+          sendDrawingData(e)
+        })
 
-      connectWebsocket()
+        connectWebsocket()
+      })
     })
 
     onUpdated(() => {
@@ -107,7 +114,16 @@ export default defineComponent({
     }
 
     const clear = () => {
-      canvas1.canvas?.clear()
+      if (undoStack.peek() != null) {
+        canvas1.canvas?.clear()
+        redoStack.empty()
+
+        var objects = canvas1.canvas?.getObjects()
+        if (objects) {
+          undoStack.push(objects[objects.length - 2])
+          undoStack.push(objects[objects.length - 1])
+        }
+      }
     }
 
     const eraser = () => {
@@ -129,12 +145,72 @@ export default defineComponent({
       }
     }
 
+    const undo = () => {
+      if (undoStack.count) {
+        if (undoStack.peek() == undefined) {
+          console.log('undo Undefined')
+          for (let i = 0; i < 2; i++) {
+            redoStack.push(undoStack.peek())
+            undoStack.pop()
+          }
+
+          let iterator: Stack = undoStack
+          let temp = new Stack()
+
+          while (iterator != null) {
+            if (iterator.peek() == undefined) {
+              while (temp.peek() != null) {
+                undoStack.push(temp.pop())
+              }
+              return
+            } else {
+              let peekNode = iterator.peek()
+              if (peekNode != null) canvas1.canvas?.add(peekNode)
+              if (iterator.head != null) temp.push(iterator.pop())
+            }
+          }
+        } else {
+          for (let i = 0; i < 2; i++) {
+            let peekStack = undoStack.peek()
+            if (peekStack != null) {
+              canvas1.canvas?.remove(peekStack)
+              redoStack.push(peekStack)
+              undoStack.pop()
+            }
+          }
+        }
+      }
+    }
+
+    const redo = () => {
+      if (redoStack.count) {
+        if (redoStack.peek() == undefined) {
+          canvas1.canvas?.clear()
+          var objects = canvas1.canvas?.getObjects()
+          if (objects) {
+            redoStack.pop()
+            redoStack.pop()
+            undoStack.push(objects[objects.length - 2])
+            undoStack.push(objects[objects.length - 1])
+          }
+        } else {
+          for (let i = 0; i < 2; i++) {
+            let peekStack = redoStack.peek()
+            if (peekStack != null) {
+              canvas1.canvas?.add(peekStack)
+              undoStack.push(peekStack)
+              redoStack.pop()
+            }
+          }
+        }
+      }
+    }
+
     const test = () => {
       if (canvas1.canvas === undefined) return
       canvas1.canvas.on('mouse:over', (e) => {
         console.log('mouseover test')
       })
-      sendDrawingData()
     }
 
     const connectWebsocket = () => {
@@ -143,9 +219,10 @@ export default defineComponent({
       }
       getMessage()
     }
+
     const ws: WebSocket = new WebSocket(
       // 本番でwssになっていないバグ
-      (window.location.protocol == 'https' ? 'wss' : 'wss') +
+      (window.location.protocol == 'https:' ? 'wss' : 'ws') +
         '://' +
         process.env.VUE_APP_BACKEND_URL +
         'ws/draw' +
@@ -170,8 +247,14 @@ export default defineComponent({
           shadow: data.shadow,
           fill: data.fill
         })
-
         canvas1.canvas?.add(path)
+
+        var objects = canvas1.canvas?.getObjects()
+        if (objects) {
+          undoStack.push(objects[objects.length - 2])
+          undoStack.push(objects[objects.length - 1])
+          redoStack.empty()
+        }
       }
     }
 
@@ -190,32 +273,32 @@ export default defineComponent({
       }
     }
 
-    const sendDrawingData = () => {
-      canvas1.canvas?.on('path:created', (e: any) => {
-        console.log(e.path.path)
-        const pathCoordinates = convertCoordinate(e.path.path)
+    const sendDrawingData = (e: any) => {
+      const pathCoordinates = convertCoordinate(e.path.path)
 
-        const drawInstruction = {
-          pathCoordinates: pathCoordinates,
-          stroke: e.path.stroke,
-          strokeWidth: e.path.strokeWidth,
-          strokeLineCap: e.path.strokeLineCap,
-          strokeLineJoin: e.path.strokeLineJoin,
-          shadow: e.path.shadow,
-          fill: false
-        }
+      const drawInstruction = {
+        pathCoordinates: pathCoordinates,
+        stroke: e.path.stroke,
+        strokeWidth: e.path.strokeWidth,
+        strokeLineCap: e.path.strokeLineCap,
+        strokeLineJoin: e.path.strokeLineJoin,
+        shadow: e.path.shadow,
+        fill: false
+      }
 
-        ws.send(
-          JSON.stringify({
-            message: {
-              type: 'draw',
-              drawInstruction: drawInstruction
-            }
-          })
-        )
-      })
+      ws.send(
+        JSON.stringify({
+          message: {
+            type: 'draw',
+            drawInstruction: drawInstruction
+          }
+        })
+      )
     }
+
     return {
+      undoStack,
+      redoStack,
       pencilCaseSetting,
       colorPalette,
       canvasRef,
@@ -231,7 +314,9 @@ export default defineComponent({
       closeConnection,
       sendDrawingData,
       connectWebsocket,
-      convertCoordinate
+      convertCoordinate,
+      undo,
+      redo
     }
   }
 })
