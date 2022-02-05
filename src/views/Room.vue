@@ -23,11 +23,18 @@
         <div
           class="d-flex flex-nowrap flex-column col-lg-8 col-11 pe-lg-3 px-0"
         >
-          <DrawingPaper />
+          <DrawingPaper :pencilCaseSettings="pencilCaseSettings" ref="canvas" />
 
           <div class="order-3 order-lg-2 btn-wrapper">
             <div class="py-1 mx-auto">
-              <PencilCase />
+              <PencilCase
+                :pencilCaseSettings="pencilCaseSettings"
+                @selectPen="selectPen"
+                @selectEraser="selectEraser"
+                @selectClear="selectClear"
+                @selectColor="selectColor"
+                @rangeBold="rangeBold"
+              />
             </div>
           </div>
 
@@ -67,7 +74,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRef } from 'vue'
+import { defineComponent, toRef, reactive, ref } from 'vue'
 import { useStore } from '../store'
 import DrawingPaper from './../components/draw/DrawingPaper.vue'
 import PencilCase from './../components/draw/PencilCase.vue'
@@ -76,6 +83,7 @@ import Chat from '../components/screen/Chat.vue'
 import { Player } from '../model/player'
 import { User } from '../model/user'
 import { HitPictureRoom } from '../model/hitPictureRoom'
+import { PencilCaseSetting } from '../interface/pencilCaseSetting'
 
 export default defineComponent({
   name: 'room',
@@ -101,20 +109,47 @@ export default defineComponent({
     )
     const addUser = () => room.phaseAction(user2)
 
-    // const drawPlayer = computed(() => {
-    //   if (room.getShufflePlayers().length != 0) {
-    //     return room.getDrawerPlayer().name
-    //   }
-    //   return room.getDrawerPlayer()
-    // })
+    const canvas = ref<InstanceType<typeof DrawingPaper>>()
+    let pencilCaseSettings: PencilCaseSetting = reactive({
+      drawColor: '#000000',
+      eraserColor: 'rgb(238,238,238)',
+      penBold: 10,
+      eraserBold: 10
+    })
+
+    const selectPen = () => {
+      if (canvas.value) canvas.value.pen()
+    }
+
+    const selectEraser = () => {
+      if (canvas.value) canvas.value.eraser()
+    }
+
+    const selectClear = () => {
+      if (canvas.value) canvas.value.clear()
+    }
+
+    const selectColor = (color: string) => {
+      if (canvas.value) canvas.value.setColor(color)
+    }
+
+    const rangeBold = () => {
+      if (canvas.value) canvas.value.setBold()
+    }
 
     return {
       room,
       players,
       user,
       user2,
-      // drawPlayer,
-      addUser
+      pencilCaseSettings,
+      canvas,
+      addUser,
+      selectPen,
+      selectEraser,
+      selectClear,
+      selectColor,
+      rangeBold
     }
   }
 })
