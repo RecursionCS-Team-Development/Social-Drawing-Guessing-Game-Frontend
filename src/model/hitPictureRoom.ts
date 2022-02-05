@@ -75,6 +75,7 @@ export class HitPictureRoom extends HitPictureGame implements Room {
     return this.entryNum == this.players.length
   }
 
+  // shufflePlayers[]からreturn
   public getDrawerPlayer(): Player {
     if (this.currRound > this.shufflePlayers.length) {
       return this.shufflePlayers[
@@ -142,7 +143,7 @@ export class HitPictureRoom extends HitPictureGame implements Room {
     console.log('絵をセーブ')
   }
 
-  // todo O(1)でするためにhashにするplayer[]を
+  // todo O(1)でするためにplayer[]をhashにする
   public getPlayerById(id: string): Player {
     for (let i = 0; i < this.players.length; i++) {
       if (this.players[i].id === id) return this.players[i]
@@ -153,7 +154,7 @@ export class HitPictureRoom extends HitPictureGame implements Room {
 
   public evaluateHitPicture(ansPlayer: Player): void {
     ansPlayer.score += this.ANSWER_SCORE
-    this.getDrawerPlayer().score += this.DRAWER_SCORE
+    this.getPlayerById(this.getDrawerPlayer().id).score += this.DRAWER_SCORE
   }
 
   public kanaToHira(str: string): string {
