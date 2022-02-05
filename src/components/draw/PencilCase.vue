@@ -126,6 +126,9 @@ export default defineComponent({
   width: 50px;
   height: 50px;
 }
+button {
+  background: #fff;
+}
 @media screen and (max-width: 480px) {
   .pen_button {
     width: 30px;

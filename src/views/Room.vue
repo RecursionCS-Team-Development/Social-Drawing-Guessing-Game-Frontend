@@ -1,5 +1,5 @@
 <template>
-  <section class="room" style="background-color: #eee">
+  <section class="room" style="background-color: #fff">
     <div class="container h-100 w-100">
       <div class="d-flex align-items-center justify-content-around">
         <button @click="addUser">user追加</button>
@@ -52,15 +52,13 @@
               v-if="room.getGamePhase() === 'ready'"
               type="button"
               class="btn btn-outline-primary"
-              style="width: 45%"
             >
               準備完了(機能なし)
             </button>
             <router-link
-              v-if="room.getGamePhase() === 'end'"
+              v-else-if="room.getGamePhase() === 'end'"
               type="button"
               class="btn btn-outline-secondary"
-              style="width: 45%"
               :to="'/lobby'"
               tag="button"
             >
@@ -112,7 +110,7 @@ export default defineComponent({
     const canvas = ref<InstanceType<typeof DrawingPaper>>()
     let pencilCaseSettings: PencilCaseSetting = reactive({
       drawColor: '#000000',
-      eraserColor: 'rgb(238,238,238)',
+      eraserColor: '#ffffff',
       penBold: 10,
       eraserBold: 10
     })

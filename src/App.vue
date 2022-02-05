@@ -9,7 +9,7 @@
       <router-view class="center SiteWrapper" />
     </main>
 
-    <footer>
+    <footer class="bg-light">
       <div class="py-2">
         <div class="container">
           <p class="m-0 rem0p8">
@@ -52,7 +52,7 @@ export default defineComponent({
 }
 @media screen and (max-width: 768px) {
   .center {
-    min-height: calc(100vh - 130px);
+    min-height: calc(100vh - 150px);
   }
 }
 #app {
