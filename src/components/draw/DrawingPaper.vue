@@ -145,7 +145,7 @@ export default defineComponent({
     }
     const ws: WebSocket = new WebSocket(
       // 本番でwssになっていないバグ
-      (window.location.protocol == 'https' ? 'wss' : 'ws') +
+      (window.location.protocol == 'https' ? 'wss' : 'wss') +
         '://' +
         process.env.VUE_APP_BACKEND_URL +
         'ws/draw' +

@@ -49,7 +49,7 @@ export default defineComponent({
     const userAnswer = ref<string>('')
 
     const ws: WebSocket = new WebSocket(
-      (window.location.protocol == 'https' ? 'wss' : 'ws') +
+      (window.location.protocol == 'https' ? 'wss' : 'wss') +
         '://' +
         process.env.VUE_APP_BACKEND_URL +
         'ws/chat' +
@@ -57,6 +57,7 @@ export default defineComponent({
     )
 
     const connectSocket = () => {
+      console.log(window.location.protocol)
       ws.onopen = () => {
         console.log('Open WebSocket Server')
       }
