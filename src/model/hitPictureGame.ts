@@ -1,4 +1,5 @@
 import { Player } from './player'
+import { dictionary } from '@/config/dictionary'
 
 export class HitPictureGame {
   protected themeList: string[]
@@ -17,7 +18,7 @@ export class HitPictureGame {
   protected ANSWER_SCORE: number
   protected DRAWER_SCORE: number
   constructor(players: Player[]) {
-    this.themeList = ['りんご', 'いるか', 'じんじゃ', 'ばなな']
+    this.themeList = dictionary
     this.shufflePlayers = Array.from(players)
     this.currRound = 1
     this.currTheme = ''

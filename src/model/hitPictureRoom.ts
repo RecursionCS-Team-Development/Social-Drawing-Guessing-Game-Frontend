@@ -129,7 +129,8 @@ export class HitPictureRoom extends HitPictureGame implements Room {
   public validChatEqTheme(id: string, message: string): boolean {
     const sender: Player = this.getPlayerById(id)
     const hiraMessage = this.kanaToHira(message)
-    if (hiraMessage === this.currTheme && sender != this.getDrawerPlayer()) {
+    const hiraTheme = this.kanaToHira(this.currTheme)
+    if (hiraMessage === hiraTheme && sender != this.getDrawerPlayer()) {
       alert('正解')
       this.isAnswer = true
       this.evaluateHitPicture(sender)

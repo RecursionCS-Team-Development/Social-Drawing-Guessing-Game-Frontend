@@ -151,7 +151,7 @@ export default defineComponent({
       password: '',
       entryNum: 2,
       mode: '絵当てゲーム',
-      level: 'medium',
+      level: 'easy',
       round: 3,
       players: [],
       link: '/room/' + Number(roomsStore.length + 1)
