@@ -53,9 +53,10 @@
                       v-model="input.text"
                       :type="input.type"
                       :placeholder="input.placeholder"
+                      :disabled="input.disabled"
+                      @input="input.method"
                       class="form-control"
                       required="true"
-                      disabled
                     />
                   </div>
                 </div>
@@ -70,6 +71,8 @@
                 <div class="col-sm-8 form-outline flex-fill mb-0">
                   <select
                     v-model="select.selected"
+                    :disabled="select.disabled"
+                    @change="select.method"
                     class="form-select"
                     aria-label="Default select example"
                   >
@@ -77,7 +80,6 @@
                       v-for="(option, index) in select.options"
                       :key="index"
                       :value="option"
-                      disabled
                     >
                       {{ option }}
                     </option>
@@ -95,10 +97,10 @@
                     v-model="optionRounds.value"
                     :min="optionRounds.min"
                     :max="optionRounds.max"
+                    @change="optionRounds.method"
                     type="range"
                     class="form-range"
                     id="customRange1"
-                    disabled
                   />
                 </div>
               </div>
@@ -123,7 +125,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, PropType, onMounted } from 'vue'
+import { defineComponent, reactive, ref, onMounted } from 'vue'
 import router from '../router'
 import { useStore } from '../store'
 
@@ -144,7 +146,7 @@ export default defineComponent({
     const user = store.state.user
     let roomsStore = store.state.rooms
 
-    let roomHash = reactive({
+    let roomHash: RoomHash = reactive({
       name: 'テストルーム',
       password: '',
       entryNum: 2,
@@ -153,11 +155,20 @@ export default defineComponent({
       round: 3,
       players: [],
       link: '/room/' + Number(roomsStore.length + 1)
-    }) as RoomHash
+    })
 
     let showModal = ref(false)
     const confirmBtnText = '作成'
     const cancelBtnText = 'キャンセル'
+
+    const inputsName = () => (roomHash.name = inputs[0].text)
+    const inputsPassword = () => (roomHash.name = inputs[1].text)
+    const selectEntryNum = () =>
+      (roomHash.entryNum = Number(selects[0].selected))
+    const selectMode = () => (roomHash.mode = String(selects[1].selected))
+    const selectLevel = () => (roomHash.level = String(selects[2].selected))
+    const inputRound = () => (roomHash.round = Number(optionRounds.value))
+
     const inputs: {
       text: string
       label: string
@@ -165,6 +176,8 @@ export default defineComponent({
       placeholder: string
       alert: boolean
       alertText: string
+      disabled: boolean
+      method: () => void
     }[] = reactive([
       {
         text: roomHash.name,
@@ -172,7 +185,9 @@ export default defineComponent({
         type: 'text',
         placeholder: 'ルーム名',
         alert: false,
-        alertText: 'ルーム名は必須です'
+        alertText: 'ルーム名は必須です',
+        disabled: false,
+        method: inputsName
       },
       {
         text: roomHash.password,
@@ -180,7 +195,9 @@ export default defineComponent({
         type: 'text',
         placeholder: 'password',
         alert: false,
-        alertText: ''
+        alertText: '',
+        disabled: true,
+        method: inputsPassword
       }
     ])
 
@@ -188,21 +205,29 @@ export default defineComponent({
       selected: string | number
       options: string[] | number[]
       label: string
+      disabled: boolean
+      method: () => void
     }[] = [
       {
         selected: roomHash.entryNum,
         options: [2, 3, 4, 5, 6],
-        label: '参加人数'
+        label: '参加人数',
+        disabled: false,
+        method: selectEntryNum
       },
       {
         selected: roomHash.mode,
         options: ['絵当てゲーム', '伝言ゲーム'],
-        label: 'モード'
+        label: 'モード',
+        disabled: true,
+        method: selectMode
       },
       {
         selected: roomHash.level,
         options: ['hard', 'medium', 'easy'],
-        label: 'レベル'
+        label: 'レベル',
+        disabled: true,
+        method: selectLevel
       }
     ]
 
@@ -210,10 +235,12 @@ export default defineComponent({
       value: number
       min: number
       max: number
+      method: () => void
     } = reactive({
       value: roomHash.round,
       min: 1,
-      max: 10
+      max: 10,
+      method: inputRound
     })
 
     const openModal = () => (showModal.value = true)
@@ -250,6 +277,7 @@ export default defineComponent({
     })
 
     return {
+      roomHash,
       user,
       showModal,
       inputs,
