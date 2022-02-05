@@ -130,6 +130,7 @@ export class HitPictureRoom extends HitPictureGame implements Room {
     const hiraMessage = this.kanaToHira(message)
     if (hiraMessage === this.currTheme && sender != this.getDrawerPlayer()) {
       alert('正解')
+      this.isAnswer = true
       this.evaluateHitPicture(sender)
       this.resetTime()
     }
@@ -242,12 +243,16 @@ export class HitPictureRoom extends HitPictureGame implements Room {
       this.gamePhase = 'acting'
       this.phaseAction()
     } else if (this.gamePhase === 'acting') {
+      if (this.isAnswer == false) alert('正解は... ' + this.currTheme)
+      this.isAnswer = false
       this.savePicture()
       this.getDrawerPlayer().isDrawer = false
 
       if (this.currRound < this.round) {
-        this.currRound++
-        this.phaseAction()
+        this.timerOutId = setTimeout(() => {
+          this.currRound++
+          this.phaseAction()
+        }, this.poseTime * 1000)
       } else {
         this.gamePhase = 'evaluationWinners'
         this.phaseAction()
