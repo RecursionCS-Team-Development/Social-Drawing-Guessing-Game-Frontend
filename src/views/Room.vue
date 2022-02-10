@@ -137,15 +137,15 @@ export default defineComponent({
     }
 
     const selectClear = () => {
-      if (canvas.value) canvas.value.clear()
+      if (canvas.value) canvas.value.sendClear()
     }
 
     const selectUndo = () => {
-      if (canvas.value) canvas.value.undo()
+      if (canvas.value) canvas.value.sendUndo()
     }
 
     const selectRedo = () => {
-      if (canvas.value) canvas.value.redo()
+      if (canvas.value) canvas.value.sendRedo()
     }
 
     const selectColor = (color: string) => {

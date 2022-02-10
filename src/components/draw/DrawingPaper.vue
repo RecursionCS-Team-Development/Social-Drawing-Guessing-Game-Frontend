@@ -1,9 +1,5 @@
 <template>
   <div>
-    <div class="d-flex justify-content-around">
-      <button @click="undo">Undo</button>
-      <button @click="redo">Redo</button>
-    </div>
     <div class="order-2 order-lg-1 canvas_wrapper border" ref="canvasRef">
       <canvas id="canvas"></canvas>
     </div>
@@ -235,28 +231,28 @@ export default defineComponent({
     const getMessage = () => {
       ws.onmessage = (e) => {
         let data = JSON.parse(e.data)
-        if (data.message.action === 'clear') {
-          canvas1.canvas?.clear()
-          return
-        }
+        if (data.message.type === 'clear') clear()
+        else if (data.message.type === 'undo') undo()
+        else if (data.message.type === 'redo') redo()
+        else {
+          data = data.message.drawInstruction
 
-        data = data.message.drawInstruction
+          const path = new fabric.Path(data.pathCoordinates, {
+            stroke: data.stroke,
+            strokeWidth: data.strokeWidth,
+            strokeLineCap: data.strokeLineCap,
+            strokeLineJoin: data.strokeLineJoin,
+            shadow: data.shadow,
+            fill: data.fill
+          })
+          canvas1.canvas?.add(path)
 
-        const path = new fabric.Path(data.pathCoordinates, {
-          stroke: data.stroke,
-          strokeWidth: data.strokeWidth,
-          strokeLineCap: data.strokeLineCap,
-          strokeLineJoin: data.strokeLineJoin,
-          shadow: data.shadow,
-          fill: data.fill
-        })
-        canvas1.canvas?.add(path)
-
-        var objects = canvas1.canvas?.getObjects()
-        if (objects) {
-          undoStack.value?.push(objects[objects.length - 2])
-          undoStack.value?.push(objects[objects.length - 1])
-          redoStack.value?.empty()
+          var objects = canvas1.canvas?.getObjects()
+          if (objects) {
+            undoStack.value?.push(objects[objects.length - 2])
+            undoStack.value?.push(objects[objects.length - 1])
+            redoStack.value?.empty()
+          }
         }
       }
     }
@@ -299,6 +295,34 @@ export default defineComponent({
       )
     }
 
+    const sendClear = () => {
+      ws.send(
+        JSON.stringify({
+          message: {
+            type: 'clear'
+          }
+        })
+      )
+    }
+    const sendUndo = () => {
+      ws.send(
+        JSON.stringify({
+          message: {
+            type: 'undo'
+          }
+        })
+      )
+    }
+    const sendRedo = () => {
+      ws.send(
+        JSON.stringify({
+          message: {
+            type: 'redo'
+          }
+        })
+      )
+    }
+
     return {
       pencilCaseSetting,
       colorPalette,
@@ -314,6 +338,9 @@ export default defineComponent({
       getMessage,
       closeConnection,
       sendDrawingData,
+      sendClear,
+      sendUndo,
+      sendRedo,
       connectWebsocket,
       convertCoordinate,
       undo,
