@@ -43,42 +43,52 @@
     />
 
     <button
-      @click="selectClear"
+      v-for="(operationIcon, index) in operationIcons"
+      :key="index"
+      @click="operationIcon.method"
       class="border-0 d-flex align-items-center justify-content-center pen_button"
       type="button"
     >
-      <i class="fas fa-undo"></i>
+      <i :class="[operationIcon.icon, operationIcon.opacity]" class="fas"></i>
     </button>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, toRef, PropType } from 'vue'
+import { defineComponent, reactive, ref, toRef, PropType, computed } from 'vue'
 import { PencilCaseSetting } from '../../interface/pencilCaseSetting'
+import { Stack } from '../../model/stack'
 
 export default defineComponent({
   name: 'pencilCase',
-  props: { pencilCaseSettings: Object as PropType<PencilCaseSetting> },
+  props: {
+    pencilCaseSettings: Object as PropType<PencilCaseSetting>,
+    undoStack: Stack,
+    redoStack: Stack
+  },
   emits: [
     'selectPen',
     'selectEraser',
     'selectClear',
+    'selectUndo',
+    'selectRedo',
     'selectColor',
     'rangeBold'
   ],
   setup(props, { emit }) {
     let pencilCaseSetting = toRef(props, 'pencilCaseSettings')
     let colorPalette = ref<HTMLInputElement>()
-    const selectPen = () => {
-      emit('selectPen')
-    }
-    const selectEraser = () => {
-      emit('selectEraser')
-    }
+    let undoStack = toRef(props, 'undoStack')
+    let redoStack = toRef(props, 'redoStack')
+    const selectPen = () => emit('selectPen')
 
-    const selectClear = () => {
-      emit('selectClear')
-    }
+    const selectEraser = () => emit('selectEraser')
+
+    const selectClear = () => emit('selectClear')
+
+    const selectUndo = () => emit('selectUndo')
+
+    const selectRedo = () => emit('selectRedo')
 
     const selectColor = () => {
       if (pencilCaseSetting.value) {
@@ -87,9 +97,7 @@ export default defineComponent({
       emit('selectColor', String(colorPalette?.value?.value))
     }
 
-    const rangeBold = () => {
-      emit('rangeBold')
-    }
+    const rangeBold = () => emit('rangeBold')
 
     let penIcons = reactive([
       {
@@ -106,14 +114,45 @@ export default defineComponent({
 
     let penSizes = ref(['solid 1px #000', 'solid 2px #000', 'solid 3px #000'])
 
+    const undoOpacity = computed(() => {
+      return undoStack.value?.count == 0 ? 'opacity-50' : 'opacity-100'
+    })
+
+    const redoOpacity = computed(() => {
+      return redoStack.value?.count == 0 ? 'opacity-50' : 'opacity-100'
+    })
+
+    const trashOpacity = computed(() => 'opacity-100')
+
+    let operationIcons = reactive([
+      {
+        icon: 'fa-undo',
+        method: selectUndo,
+        opacity: undoOpacity
+      },
+      {
+        icon: 'fa-redo',
+        method: selectRedo,
+        opacity: redoOpacity
+      },
+      {
+        icon: 'fa-trash-alt',
+        method: selectClear,
+        opacity: trashOpacity
+      }
+    ])
+
     return {
       pencilCaseSetting,
       penIcons,
       penSizes,
       colorPalette,
+      operationIcons,
       selectPen,
       selectEraser,
       selectClear,
+      selectUndo,
+      selectRedo,
       selectColor,
       rangeBold
     }

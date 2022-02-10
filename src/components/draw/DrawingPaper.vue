@@ -30,11 +30,15 @@ interface Canvas {
 }
 
 export default defineComponent({
-  name: 'canvas',
-  props: { pencilCaseSettings: Object as PropType<PencilCaseSetting> },
+  name: 'drawingPaper',
+  props: {
+    pencilCaseSettings: Object as PropType<PencilCaseSetting>,
+    undoStack: Stack,
+    redoStack: Stack
+  },
   setup(props) {
-    let undoStack = new Stack()
-    let redoStack = new Stack()
+    let undoStack = toRef(props, 'undoStack')
+    let redoStack = toRef(props, 'redoStack')
 
     const getRoomId = () => {
       const room = window.location.pathname.split('/')
@@ -114,14 +118,14 @@ export default defineComponent({
     }
 
     const clear = () => {
-      if (undoStack.peek() != null) {
+      if (undoStack.value?.peek() != null) {
         canvas1.canvas?.clear()
-        redoStack.empty()
+        redoStack.value?.empty()
 
         var objects = canvas1.canvas?.getObjects()
         if (objects) {
-          undoStack.push(objects[objects.length - 2])
-          undoStack.push(objects[objects.length - 1])
+          undoStack.value.push(objects[objects.length - 2])
+          undoStack.value.push(objects[objects.length - 1])
         }
       }
     }
@@ -146,36 +150,35 @@ export default defineComponent({
     }
 
     const undo = () => {
-      if (undoStack.count) {
-        if (undoStack.peek() == undefined) {
-          console.log('undo Undefined')
+      if (undoStack.value?.count) {
+        if (undoStack.value.peek() == undefined) {
           for (let i = 0; i < 2; i++) {
-            redoStack.push(undoStack.peek())
-            undoStack.pop()
+            redoStack.value?.push(undoStack.value.peek())
+            undoStack.value.pop()
           }
 
-          let iterator: Stack = undoStack
+          let iterator = undoStack
           let temp = new Stack()
 
           while (iterator != null) {
-            if (iterator.peek() == undefined) {
+            if (iterator.value?.peek() == undefined) {
               while (temp.peek() != null) {
-                undoStack.push(temp.pop())
+                undoStack.value.push(temp.pop())
               }
               return
             } else {
-              let peekNode = iterator.peek()
+              let peekNode = iterator.value?.peek()
               if (peekNode != null) canvas1.canvas?.add(peekNode)
-              if (iterator.head != null) temp.push(iterator.pop())
+              if (iterator.value?.head != null) temp.push(iterator.value?.pop())
             }
           }
         } else {
           for (let i = 0; i < 2; i++) {
-            let peekStack = undoStack.peek()
+            let peekStack = undoStack.value.peek()
             if (peekStack != null) {
               canvas1.canvas?.remove(peekStack)
-              redoStack.push(peekStack)
-              undoStack.pop()
+              redoStack.value?.push(peekStack)
+              undoStack.value.pop()
             }
           }
         }
@@ -183,23 +186,23 @@ export default defineComponent({
     }
 
     const redo = () => {
-      if (redoStack.count) {
-        if (redoStack.peek() == undefined) {
+      if (redoStack.value?.count) {
+        if (redoStack.value.peek() == undefined) {
           canvas1.canvas?.clear()
           var objects = canvas1.canvas?.getObjects()
           if (objects) {
-            redoStack.pop()
-            redoStack.pop()
-            undoStack.push(objects[objects.length - 2])
-            undoStack.push(objects[objects.length - 1])
+            redoStack.value.pop()
+            redoStack.value.pop()
+            undoStack.value?.push(objects[objects.length - 2])
+            undoStack.value?.push(objects[objects.length - 1])
           }
         } else {
           for (let i = 0; i < 2; i++) {
-            let peekStack = redoStack.peek()
+            let peekStack = redoStack.value.peek()
             if (peekStack != null) {
               canvas1.canvas?.add(peekStack)
-              undoStack.push(peekStack)
-              redoStack.pop()
+              undoStack.value?.push(peekStack)
+              redoStack.value.pop()
             }
           }
         }
@@ -251,9 +254,9 @@ export default defineComponent({
 
         var objects = canvas1.canvas?.getObjects()
         if (objects) {
-          undoStack.push(objects[objects.length - 2])
-          undoStack.push(objects[objects.length - 1])
-          redoStack.empty()
+          undoStack.value?.push(objects[objects.length - 2])
+          undoStack.value?.push(objects[objects.length - 1])
+          redoStack.value?.empty()
         }
       }
     }
@@ -297,8 +300,6 @@ export default defineComponent({
     }
 
     return {
-      undoStack,
-      redoStack,
       pencilCaseSetting,
       colorPalette,
       canvasRef,
