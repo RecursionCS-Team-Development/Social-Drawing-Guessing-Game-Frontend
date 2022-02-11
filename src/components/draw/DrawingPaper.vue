@@ -219,7 +219,11 @@ export default defineComponent({
         `/${getRoomId()}/`
     )
 
-    const getMessage = () => {
+    const getMessage = async () => {
+      await onMessage()
+    }
+
+    const onMessage = async () => {
       ws.onmessage = (e) => {
         let data = JSON.parse(e.data)
         if (data.message.type === 'clear') clear()
@@ -236,7 +240,6 @@ export default defineComponent({
             shadow: data.shadow,
             fill: data.fill
           })
-          console.log(path)
           canvas1.canvas?.add(path)
 
           var objects = canvas1.canvas?.getObjects()
@@ -277,8 +280,10 @@ export default defineComponent({
       }
 
       var objects = canvas1.canvas?.getObjects()
-      if (objects) canvas1.canvas?.remove(objects[objects.length - 1])
+      if (objects) waitDraw(objects, drawInstruction)
+    }
 
+    const sendDraw = async (drawInstruction: any) => {
       ws.send(
         JSON.stringify({
           message: {
@@ -287,6 +292,11 @@ export default defineComponent({
           }
         })
       )
+    }
+
+    const waitDraw = async (objects: fabric.Object[], drawInstruction: any) => {
+      await sendDraw(drawInstruction)
+      if (objects) canvas1.canvas?.remove(objects[objects.length - 1])
     }
 
     const sendClear = () => {
@@ -298,6 +308,7 @@ export default defineComponent({
         })
       )
     }
+
     const sendUndo = () => {
       ws.send(
         JSON.stringify({
