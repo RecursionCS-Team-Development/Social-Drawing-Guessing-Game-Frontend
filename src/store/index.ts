@@ -34,6 +34,11 @@ export const store = createStore<State>({
     },
     rooms: []
   },
+  getters: {
+    rooms: function (state) {
+      return state.rooms
+    }
+  },
   mutations: {
     addRoom(state: State, payload: RoomHash): void {
       state.rooms.push(RoomFactory.makeRoom(payload))
@@ -109,7 +114,7 @@ export const store = createStore<State>({
       await DrawingApiService.getRoomsAPI()
         .then((res) => {
           const rooms = res.data.results
-
+          state.rooms = []
           for (const room of rooms) {
             const roomHash = reactive({
               name: room.name,

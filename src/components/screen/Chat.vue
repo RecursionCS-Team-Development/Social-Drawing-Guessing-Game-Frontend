@@ -57,7 +57,6 @@ export default defineComponent({
     )
 
     const connectSocket = () => {
-      console.log(window.location.protocol)
       ws.onopen = () => {
         console.log('Open WebSocket Server')
       }

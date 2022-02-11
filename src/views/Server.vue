@@ -125,7 +125,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, onMounted } from 'vue'
+import { defineComponent, reactive, ref, onMounted, computed } from 'vue'
 import router from '../router'
 import { useStore } from '../store'
 
@@ -144,7 +144,10 @@ export default defineComponent({
   setup() {
     const store = useStore()
     const user = store.state.user
-    let roomsStore = store.state.rooms
+
+    const roomsStore = computed(() => {
+      return store.getters.rooms
+    })
 
     let roomHash: RoomHash = reactive({
       name: 'テストルーム',
@@ -154,7 +157,7 @@ export default defineComponent({
       level: 'easy',
       round: 3,
       players: [],
-      link: '/room/' + Number(roomsStore.length + 1)
+      link: '/room/' + Number(store.getters.rooms.length + 1)
     })
 
     let showModal = ref(false)
@@ -256,7 +259,7 @@ export default defineComponent({
         store.commit('addRoom', roomHash)
         router.push({
           name: 'Room',
-          params: { roomId: roomsStore.length }
+          params: { roomId: store.getters.rooms.length }
         })
         initializeForm()
       }
