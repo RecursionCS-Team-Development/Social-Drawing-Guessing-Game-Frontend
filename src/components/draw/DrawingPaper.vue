@@ -120,7 +120,6 @@ export default defineComponent({
 
         var objects = canvas1.canvas?.getObjects()
         if (objects) {
-          undoStack.value.push(objects[objects.length - 2])
           undoStack.value.push(objects[objects.length - 1])
         }
       }
@@ -148,10 +147,8 @@ export default defineComponent({
     const undo = () => {
       if (undoStack.value?.count) {
         if (undoStack.value.peek() == undefined) {
-          for (let i = 0; i < 2; i++) {
-            redoStack.value?.push(undoStack.value.peek())
-            undoStack.value.pop()
-          }
+          redoStack.value?.push(undoStack.value.peek())
+          undoStack.value.pop()
 
           let iterator = undoStack
           let temp = new Stack()
@@ -169,13 +166,11 @@ export default defineComponent({
             }
           }
         } else {
-          for (let i = 0; i < 2; i++) {
-            let peekStack = undoStack.value.peek()
-            if (peekStack != null) {
-              canvas1.canvas?.remove(peekStack)
-              redoStack.value?.push(peekStack)
-              undoStack.value.pop()
-            }
+          let peekStack = undoStack.value.peek()
+          if (peekStack != null) {
+            canvas1.canvas?.remove(peekStack)
+            redoStack.value?.push(peekStack)
+            undoStack.value.pop()
           }
         }
       }
@@ -188,18 +183,14 @@ export default defineComponent({
           var objects = canvas1.canvas?.getObjects()
           if (objects) {
             redoStack.value.pop()
-            redoStack.value.pop()
-            undoStack.value?.push(objects[objects.length - 2])
             undoStack.value?.push(objects[objects.length - 1])
           }
         } else {
-          for (let i = 0; i < 2; i++) {
-            let peekStack = redoStack.value.peek()
-            if (peekStack != null) {
-              canvas1.canvas?.add(peekStack)
-              undoStack.value?.push(peekStack)
-              redoStack.value.pop()
-            }
+          let peekStack = redoStack.value.peek()
+          if (peekStack != null) {
+            canvas1.canvas?.add(peekStack)
+            undoStack.value?.push(peekStack)
+            redoStack.value.pop()
           }
         }
       }
@@ -245,11 +236,11 @@ export default defineComponent({
             shadow: data.shadow,
             fill: data.fill
           })
+          console.log(path)
           canvas1.canvas?.add(path)
 
           var objects = canvas1.canvas?.getObjects()
           if (objects) {
-            undoStack.value?.push(objects[objects.length - 2])
             undoStack.value?.push(objects[objects.length - 1])
             redoStack.value?.empty()
           }
@@ -284,6 +275,9 @@ export default defineComponent({
         shadow: e.path.shadow,
         fill: false
       }
+
+      var objects = canvas1.canvas?.getObjects()
+      if (objects) canvas1.canvas?.remove(objects[objects.length - 1])
 
       ws.send(
         JSON.stringify({
