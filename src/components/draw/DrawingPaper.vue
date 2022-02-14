@@ -118,7 +118,7 @@ export default defineComponent({
         canvas1.canvas?.clear()
         redoStack.value?.empty()
 
-        var objects = canvas1.canvas?.getObjects()
+        let objects = canvas1.canvas?.getObjects()
         if (objects) {
           undoStack.value.push(objects[objects.length - 1])
         }
@@ -180,7 +180,7 @@ export default defineComponent({
       if (redoStack.value?.count) {
         if (redoStack.value.peek() == undefined) {
           canvas1.canvas?.clear()
-          var objects = canvas1.canvas?.getObjects()
+          let objects = canvas1.canvas?.getObjects()
           if (objects) {
             redoStack.value.pop()
             undoStack.value?.push(objects[objects.length - 1])
@@ -242,7 +242,7 @@ export default defineComponent({
           })
           canvas1.canvas?.add(path)
 
-          var objects = canvas1.canvas?.getObjects()
+          let objects = canvas1.canvas?.getObjects()
           if (objects) {
             undoStack.value?.push(objects[objects.length - 1])
             redoStack.value?.empty()
@@ -279,7 +279,7 @@ export default defineComponent({
         fill: false
       }
 
-      var objects = canvas1.canvas?.getObjects()
+      let objects = canvas1.canvas?.getObjects()
       if (objects) waitDraw(objects, drawInstruction)
     }
 
