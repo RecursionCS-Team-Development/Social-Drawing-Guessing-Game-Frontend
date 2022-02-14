@@ -1,10 +1,6 @@
 <template>
   <div>
-    <div
-      class="order-2 order-lg-1 canvas_wrapper border"
-      ref="canvasRef"
-      @mouseover="test"
-    >
+    <div class="order-2 order-lg-1 canvas_wrapper border" ref="canvasRef">
       <canvas id="canvas"></canvas>
     </div>
   </div>
@@ -23,15 +19,23 @@ import {
 } from 'vue'
 import { fabric } from 'fabric'
 import { PencilCaseSetting } from '../../interface/pencilCaseSetting'
+import { Stack } from '../../model/stack'
 
 interface Canvas {
   canvas: fabric.Canvas | undefined
 }
 
 export default defineComponent({
-  name: 'canvas',
-  props: { pencilCaseSettings: Object as PropType<PencilCaseSetting> },
+  name: 'drawingPaper',
+  props: {
+    pencilCaseSettings: Object as PropType<PencilCaseSetting>,
+    undoStack: Stack,
+    redoStack: Stack
+  },
   setup(props) {
+    let undoStack = toRef(props, 'undoStack')
+    let redoStack = toRef(props, 'redoStack')
+
     const getRoomId = () => {
       const room = window.location.pathname.split('/')
       return room[room.length - 1]
@@ -72,9 +76,12 @@ export default defineComponent({
           canvas1.canvas.freeDrawingBrush.color =
             pencilCaseSetting.value.drawColor
         }
-      })
+        canvas1.canvas?.on('path:created', (e) => {
+          sendDrawingData(e)
+        })
 
-      connectWebsocket()
+        connectWebsocket()
+      })
     })
 
     onUpdated(() => {
@@ -107,7 +114,15 @@ export default defineComponent({
     }
 
     const clear = () => {
-      canvas1.canvas?.clear()
+      if (undoStack.value?.peek() != null) {
+        canvas1.canvas?.clear()
+        redoStack.value?.empty()
+
+        let objects = canvas1.canvas?.getObjects()
+        if (objects) {
+          undoStack.value.push(objects[objects.length - 1])
+        }
+      }
     }
 
     const eraser = () => {
@@ -129,12 +144,63 @@ export default defineComponent({
       }
     }
 
+    const undo = () => {
+      if (undoStack.value?.count) {
+        if (undoStack.value.peek() == undefined) {
+          redoStack.value?.push(undoStack.value.peek())
+          undoStack.value.pop()
+
+          let iterator = undoStack
+          let temp = new Stack()
+
+          while (iterator != null) {
+            if (iterator.value?.peek() == undefined) {
+              while (temp.peek() != null) {
+                undoStack.value.push(temp.pop())
+              }
+              return
+            } else {
+              let peekNode = iterator.value?.peek()
+              if (peekNode != null) canvas1.canvas?.add(peekNode)
+              if (iterator.value?.head != null) temp.push(iterator.value?.pop())
+            }
+          }
+        } else {
+          let peekStack = undoStack.value.peek()
+          if (peekStack != null) {
+            canvas1.canvas?.remove(peekStack)
+            redoStack.value?.push(peekStack)
+            undoStack.value.pop()
+          }
+        }
+      }
+    }
+
+    const redo = () => {
+      if (redoStack.value?.count) {
+        if (redoStack.value.peek() == undefined) {
+          canvas1.canvas?.clear()
+          let objects = canvas1.canvas?.getObjects()
+          if (objects) {
+            redoStack.value.pop()
+            undoStack.value?.push(objects[objects.length - 1])
+          }
+        } else {
+          let peekStack = redoStack.value.peek()
+          if (peekStack != null) {
+            canvas1.canvas?.add(peekStack)
+            undoStack.value?.push(peekStack)
+            redoStack.value.pop()
+          }
+        }
+      }
+    }
+
     const test = () => {
       if (canvas1.canvas === undefined) return
       canvas1.canvas.on('mouse:over', (e) => {
         console.log('mouseover test')
       })
-      sendDrawingData()
     }
 
     const connectWebsocket = () => {
@@ -143,6 +209,7 @@ export default defineComponent({
       }
       getMessage()
     }
+
     const ws: WebSocket = new WebSocket(
       // 本番でwssになっていないバグ
       (window.location.protocol == 'https:' ? 'wss' : 'ws') +
@@ -152,26 +219,35 @@ export default defineComponent({
         `/${getRoomId()}/`
     )
 
-    const getMessage = () => {
+    const getMessage = async () => {
+      await onMessage()
+    }
+
+    const onMessage = async () => {
       ws.onmessage = (e) => {
         let data = JSON.parse(e.data)
-        if (data.message.action === 'clear') {
-          canvas1.canvas?.clear()
-          return
+        if (data.message.type === 'clear') clear()
+        else if (data.message.type === 'undo') undo()
+        else if (data.message.type === 'redo') redo()
+        else {
+          data = data.message.drawInstruction
+
+          const path = new fabric.Path(data.pathCoordinates, {
+            stroke: data.stroke,
+            strokeWidth: data.strokeWidth,
+            strokeLineCap: data.strokeLineCap,
+            strokeLineJoin: data.strokeLineJoin,
+            shadow: data.shadow,
+            fill: data.fill
+          })
+          canvas1.canvas?.add(path)
+
+          let objects = canvas1.canvas?.getObjects()
+          if (objects) {
+            undoStack.value?.push(objects[objects.length - 1])
+            redoStack.value?.empty()
+          }
         }
-
-        data = data.message.drawInstruction
-
-        const path = new fabric.Path(data.pathCoordinates, {
-          stroke: data.stroke,
-          strokeWidth: data.strokeWidth,
-          strokeLineCap: data.strokeLineCap,
-          strokeLineJoin: data.strokeLineJoin,
-          shadow: data.shadow,
-          fill: data.fill
-        })
-
-        canvas1.canvas?.add(path)
       }
     }
 
@@ -190,31 +266,68 @@ export default defineComponent({
       }
     }
 
-    const sendDrawingData = () => {
-      canvas1.canvas?.on('path:created', (e: any) => {
-        console.log(e.path.path)
-        const pathCoordinates = convertCoordinate(e.path.path)
+    const sendDrawingData = (e: any) => {
+      const pathCoordinates = convertCoordinate(e.path.path)
 
-        const drawInstruction = {
-          pathCoordinates: pathCoordinates,
-          stroke: e.path.stroke,
-          strokeWidth: e.path.strokeWidth,
-          strokeLineCap: e.path.strokeLineCap,
-          strokeLineJoin: e.path.strokeLineJoin,
-          shadow: e.path.shadow,
-          fill: false
-        }
+      const drawInstruction = {
+        pathCoordinates: pathCoordinates,
+        stroke: e.path.stroke,
+        strokeWidth: e.path.strokeWidth,
+        strokeLineCap: e.path.strokeLineCap,
+        strokeLineJoin: e.path.strokeLineJoin,
+        shadow: e.path.shadow,
+        fill: false
+      }
 
-        ws.send(
-          JSON.stringify({
-            message: {
-              type: 'draw',
-              drawInstruction: drawInstruction
-            }
-          })
-        )
-      })
+      let objects = canvas1.canvas?.getObjects()
+      if (objects) waitDraw(objects, drawInstruction)
     }
+
+    const sendDraw = async (drawInstruction: any) => {
+      ws.send(
+        JSON.stringify({
+          message: {
+            type: 'draw',
+            drawInstruction: drawInstruction
+          }
+        })
+      )
+    }
+
+    const waitDraw = async (objects: fabric.Object[], drawInstruction: any) => {
+      await sendDraw(drawInstruction)
+      if (objects) canvas1.canvas?.remove(objects[objects.length - 1])
+    }
+
+    const sendClear = () => {
+      ws.send(
+        JSON.stringify({
+          message: {
+            type: 'clear'
+          }
+        })
+      )
+    }
+
+    const sendUndo = () => {
+      ws.send(
+        JSON.stringify({
+          message: {
+            type: 'undo'
+          }
+        })
+      )
+    }
+    const sendRedo = () => {
+      ws.send(
+        JSON.stringify({
+          message: {
+            type: 'redo'
+          }
+        })
+      )
+    }
+
     return {
       pencilCaseSetting,
       colorPalette,
@@ -230,8 +343,13 @@ export default defineComponent({
       getMessage,
       closeConnection,
       sendDrawingData,
+      sendClear,
+      sendUndo,
+      sendRedo,
       connectWebsocket,
-      convertCoordinate
+      convertCoordinate,
+      undo,
+      redo
     }
   }
 })

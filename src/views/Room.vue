@@ -23,15 +23,24 @@
         <div
           class="d-flex flex-nowrap flex-column col-lg-8 col-11 pe-lg-3 px-0"
         >
-          <DrawingPaper :pencilCaseSettings="pencilCaseSettings" ref="canvas" />
+          <DrawingPaper
+            :pencilCaseSettings="pencilCaseSettings"
+            :undoStack="undoStack"
+            :redoStack="redoStack"
+            ref="canvas"
+          />
 
           <div class="order-3 order-lg-2 btn-wrapper">
             <div class="py-1 mx-auto">
               <PencilCase
                 :pencilCaseSettings="pencilCaseSettings"
+                :undoStack="undoStack"
+                :redoStack="redoStack"
                 @selectPen="selectPen"
                 @selectEraser="selectEraser"
                 @selectClear="selectClear"
+                @selectUndo="selectUndo"
+                @selectRedo="selectRedo"
                 @selectColor="selectColor"
                 @rangeBold="rangeBold"
               />
@@ -86,6 +95,7 @@ import Chat from '../components/screen/Chat.vue'
 import { Player } from '../model/player'
 import { User } from '../model/user'
 import { HitPictureRoom } from '../model/hitPictureRoom'
+import { Stack } from '../model/stack'
 import { PencilCaseSetting } from '../interface/pencilCaseSetting'
 
 export default defineComponent({
@@ -120,6 +130,9 @@ export default defineComponent({
       eraserBold: 10
     })
 
+    let undoStack: Stack = reactive(new Stack())
+    let redoStack: Stack = reactive(new Stack())
+
     const selectPen = () => {
       if (canvas.value) canvas.value.pen()
     }
@@ -129,7 +142,15 @@ export default defineComponent({
     }
 
     const selectClear = () => {
-      if (canvas.value) canvas.value.clear()
+      if (canvas.value) canvas.value.sendClear()
+    }
+
+    const selectUndo = () => {
+      if (canvas.value) canvas.value.sendUndo()
+    }
+
+    const selectRedo = () => {
+      if (canvas.value) canvas.value.sendRedo()
     }
 
     const selectColor = (color: string) => {
@@ -163,10 +184,14 @@ export default defineComponent({
       user2,
       pencilCaseSettings,
       canvas,
+      undoStack,
+      redoStack,
       addUser,
       selectPen,
       selectEraser,
       selectClear,
+      selectUndo,
+      selectRedo,
       selectColor,
       rangeBold,
       exitRoom
