@@ -56,10 +56,14 @@
               準備完了(機能なし)
             </button>
             <router-link
-              v-else-if="room.getGamePhase() === 'end'"
+              v-if="
+                room.getGamePhase() !== 'acting' &&
+                room.getGamePhase() !== 'evaluationWinners'
+              "
+              :to="'/lobby'"
+              @click="exitRoom"
               type="button"
               class="btn btn-outline-secondary"
-              :to="'/lobby'"
               tag="button"
             >
               退出
@@ -74,6 +78,7 @@
 <script lang="ts">
 import { defineComponent, toRef, reactive, ref } from 'vue'
 import { useStore } from '../store'
+import { onBeforeRouteLeave } from 'vue-router'
 import DrawingPaper from './../components/draw/DrawingPaper.vue'
 import PencilCase from './../components/draw/PencilCase.vue'
 import PlayerList from './../components/screen/PlayerList.vue'
@@ -135,6 +140,22 @@ export default defineComponent({
       if (canvas.value) canvas.value.setBold()
     }
 
+    const exitRoom = () => {
+      for (let i = 0; i < room.players.length; i++) {
+        if (room.players[i].id === user.id) {
+          room.players.splice(i, 1)
+          if (room.players.length === 0) {
+            store.state.rooms.splice(Number(roomId.value - 1), 1)
+          }
+          return
+        }
+      }
+    }
+
+    onBeforeRouteLeave(() => {
+      exitRoom()
+    })
+
     return {
       room,
       players,
@@ -147,7 +168,8 @@ export default defineComponent({
       selectEraser,
       selectClear,
       selectColor,
-      rangeBold
+      rangeBold,
+      exitRoom
     }
   }
 })

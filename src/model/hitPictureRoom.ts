@@ -100,10 +100,13 @@ export class HitPictureRoom extends HitPictureGame implements Room {
       } else if (player instanceof User) {
         this.players.push(new Player(player))
         this.shufflePlayers.push(new Player(player))
-      } else {
+      } else if (typeof player === 'string') {
         const jsonPlayer: Player = new Player(JSON.parse(player))
         this.players.push(jsonPlayer)
         this.shufflePlayers.push(jsonPlayer)
+      } else {
+        this.players.push(new Player(player))
+        this.shufflePlayers.push(new Player(player))
       }
 
       if (this.validSetPlayer()) {

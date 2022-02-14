@@ -12,6 +12,7 @@
           <div class="col" v-for="(room, index) in roomsStore" :key="index">
             <router-link
               :to="room.getLink()"
+              @click="room.phaseAction(user)"
               tag="div"
               class="card rounded routerLink"
             >
@@ -131,7 +132,6 @@ import { useStore } from '../store'
 
 import ConfirmButton from '../components/common/ConfirmButton.vue'
 import CancelButton from '../components/common/CancelButton.vue'
-import DrawingApiService from '../services/drawingApiService'
 
 import { User } from '../model/user'
 import { RoomHash } from '../interface/roomHash'

@@ -25,7 +25,7 @@ export const store = createStore<State>({
       name: '',
       mail: '',
       password: '',
-      id: '',
+      id: '123',
       img: 'https://4.bp.blogspot.com/-bTipX3Vmpts/Wn1ZgUbOHXI/AAAAAAABKM4/b31Jvq8aWssiswuiO19BAJmmAC5WAzXwACLcBGAs/s800/character_boy_normal.png',
       profile: '',
       twitterAccount: '',
