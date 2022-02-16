@@ -23,9 +23,9 @@ export class HitPictureRoom extends HitPictureGame implements Room {
     round: number,
     playersHash: Map<string, Player>,
     link: string,
-    players: Player[]
+    playersId: string[]
   ) {
-    super(players)
+    super(playersId)
     this.name = name
     this.password = password
     this.entryNum = entryNum
@@ -78,15 +78,15 @@ export class HitPictureRoom extends HitPictureGame implements Room {
 
   // playersHashからreturn
   public getDrawerPlayer(): Player {
-    if (this.currRound > this.shufflePlayersArr.length) {
+    if (this.currRound > this.shufflePlayersIdList.length) {
       return this.playersHash.get(
-        this.shufflePlayersArr[
-          (this.currRound % this.shufflePlayersArr.length) - 1
-        ].id
+        this.shufflePlayersIdList[
+          (this.currRound % this.shufflePlayersIdList.length) - 1
+        ]
       ) as Player
     }
     return this.playersHash.get(
-      this.shufflePlayersArr[this.currRound - 1].id
+      this.shufflePlayersIdList[this.currRound - 1]
     ) as Player
   }
 
@@ -100,25 +100,25 @@ export class HitPictureRoom extends HitPictureGame implements Room {
   public addPlayer(player: Player | User | string): void {
     if (!this.validSetPlayer()) {
       if (player instanceof Player) {
-        this.shufflePlayersArr.push(player)
+        this.shufflePlayersIdList.push(player.id)
         this.playersHash.set(player.id, player)
       } else if (player instanceof User) {
-        this.shufflePlayersArr.push(new Player(player))
+        this.shufflePlayersIdList.push(player.id)
         this.playersHash.set(player.id, new Player(player))
       } else if (typeof player === 'string') {
         const jsonPlayer: Player = new Player(JSON.parse(player))
-        this.shufflePlayersArr.push(jsonPlayer)
+        this.shufflePlayersIdList.push(jsonPlayer.id)
         this.playersHash.set(jsonPlayer.id, jsonPlayer)
       } else {
         const playerMold: User = player
 
-        this.shufflePlayersArr.push(new Player(player))
+        this.shufflePlayersIdList.push(playerMold.id)
         this.playersHash.set(playerMold.id, new Player(playerMold))
       }
 
       if (this.validSetPlayer()) {
-        this.shufflePlayer()
-        this.shuffleThemeList()
+        this.shufflePlayersIdList = this.shuffleList(this.shufflePlayersIdList)
+        this.themeList = this.shuffleList(this.themeList)
         this.gameStart()
       }
     }
@@ -206,18 +206,6 @@ export class HitPictureRoom extends HitPictureGame implements Room {
       s += players[i].name + ': ' + players[i].score + '\n'
     }
     return s
-  }
-
-  public shufflePlayer(): void {
-    const newThemeList: Player[] = []
-
-    while (this.shufflePlayersArr.length > 0) {
-      const l = this.shufflePlayersArr.length
-      const random = Math.floor(Math.random() * l)
-      newThemeList.push(this.shufflePlayersArr[random])
-      this.shufflePlayersArr.splice(random, 1)
-    }
-    this.shufflePlayersArr = newThemeList
   }
 
   public gameStart(): void {

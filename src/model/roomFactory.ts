@@ -12,7 +12,7 @@ export class RoomFactory {
         room.round,
         room.playersHash,
         room.link,
-        room.players
+        room.playersId
       )
     }
     return new HitPictureRoom(
@@ -23,7 +23,7 @@ export class RoomFactory {
       room.round,
       room.playersHash,
       room.link,
-      room.players
+      room.playersId
     )
   }
 }

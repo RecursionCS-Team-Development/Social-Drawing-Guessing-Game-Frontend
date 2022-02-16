@@ -164,9 +164,9 @@ export default defineComponent({
 
     const exitRoom = () => {
       players.delete(user.id)
-      let shufflePlayersArr = room.getShufflePlayersArr()
+      let shufflePlayersArr = room.getShufflePlayersIdList()
       for (let i = 0; i < shufflePlayersArr.length; i++) {
-        if (shufflePlayersArr[i].id === user.id) {
+        if (shufflePlayersArr[i] === user.id) {
           shufflePlayersArr.splice(i, 1)
           return
         }

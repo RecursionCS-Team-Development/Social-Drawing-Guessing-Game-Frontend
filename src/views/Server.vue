@@ -156,7 +156,7 @@ export default defineComponent({
       mode: '絵当てゲーム',
       level: 'easy',
       round: 3,
-      players: [],
+      playersId: [],
       link: '/room/' + Number(store.getters.rooms.length + 1),
       playersHash: new Map<string, Player>()
     })
@@ -256,7 +256,7 @@ export default defineComponent({
       if (roomHash.name === '') inputs[0].alert = true
       else {
         showModal.value = false
-        roomHash.players.push(new Player(user))
+        roomHash.playersId.push(user.id)
         roomHash.playersHash.set(user.id, new Player(user))
         store.commit('addRoom', roomHash)
         router.push({
