@@ -1,5 +1,9 @@
 <template>
-  <div v-for="(player, index) in players" :key="index" class="col p-sm-2 p-1">
+  <div
+    v-for="(player, index) of players.values()"
+    :key="index"
+    class="col p-sm-2 p-1"
+  >
     <figure class="d-flex avatar_wrapper m-auto">
       <img class="avatar" :src="player.img" alt="Avatar" />
     </figure>
@@ -27,7 +31,7 @@ export default defineComponent({
     let roomId = toRef(props, 'roomId')
     const store = useStore()
     let room = store.state.rooms[Number(roomId.value - 1)]
-    let players: Player[] = room.getPlayers()
+    let players: Map<string, Player> = room.getPlayersHash()
 
     return {
       players

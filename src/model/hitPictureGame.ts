@@ -1,9 +1,8 @@
-import { Player } from './player'
 import { dictionary } from '@/config/dictionary'
 
 export class HitPictureGame {
   protected themeList: string[]
-  protected shufflePlayers: Player[]
+  protected shufflePlayersIdList: string[]
   protected currRound: number
   protected currTheme: string
   protected gamePhase: Phase
@@ -17,9 +16,9 @@ export class HitPictureGame {
   protected timerCountId: number
   protected ANSWER_SCORE: number
   protected DRAWER_SCORE: number
-  constructor(players: Player[]) {
+  constructor(playersId: string[]) {
     this.themeList = dictionary
-    this.shufflePlayers = Array.from(players)
+    this.shufflePlayersIdList = Array.from(playersId)
     this.currRound = 1
     this.currTheme = ''
     this.gamePhase = 'ready'
@@ -51,19 +50,23 @@ export class HitPictureGame {
     return this.currRound
   }
 
-  public shuffleThemeList(): void {
+  public shuffleList(list: string[]): string[] {
     const newThemeList: string[] = []
-    while (this.themeList.length > 0) {
-      const l = this.themeList.length
+    while (list.length > 0) {
+      const l = list.length
       const random = Math.floor(Math.random() * l)
-      newThemeList.push(this.themeList[random])
-      this.themeList.splice(random, 1)
+      newThemeList.push(list[random])
+      list.splice(random, 1)
     }
-    this.themeList = newThemeList
+    return newThemeList
   }
 
-  public getShufflePlayers(): Player[] {
-    return this.shufflePlayers
+  public getShufflePlayersIdList(): string[] {
+    return this.shufflePlayersIdList
+  }
+
+  public setShufflePlayersIdList(shufflePlayersIdList: string[]): void {
+    this.shufflePlayersIdList = shufflePlayersIdList
   }
 }
 

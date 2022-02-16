@@ -65,10 +65,14 @@
               準備完了(機能なし)
             </button>
             <router-link
-              v-else-if="room.getGamePhase() === 'end'"
+              v-if="
+                room.getGamePhase() !== 'acting' &&
+                room.getGamePhase() !== 'evaluationWinners'
+              "
+              :to="'/lobby'"
+              @click="exitRoom"
               type="button"
               class="btn btn-outline-secondary"
-              :to="'/lobby'"
               tag="button"
             >
               退出
@@ -83,6 +87,7 @@
 <script lang="ts">
 import { defineComponent, toRef, reactive, ref } from 'vue'
 import { useStore } from '../store'
+import { onBeforeRouteLeave } from 'vue-router'
 import DrawingPaper from './../components/draw/DrawingPaper.vue'
 import PencilCase from './../components/draw/PencilCase.vue'
 import PlayerList from './../components/screen/PlayerList.vue'
@@ -102,8 +107,9 @@ export default defineComponent({
 
     const store = useStore()
     let room: HitPictureRoom = store.state.rooms[Number(roomId.value - 1)]
+    let players: Map<string, Player> = room.getPlayersHash()
     let user: User = store.state.user
-    let players: Player[] = room.getPlayers()
+
     const user2 = new User(
       'ユーザー2',
       '@gmail.com',
@@ -156,6 +162,25 @@ export default defineComponent({
       if (canvas.value) canvas.value.setBold()
     }
 
+    const exitRoom = () => {
+      players.delete(user.id)
+      let shufflePlayersArr = room.getShufflePlayersIdList()
+      for (let i = 0; i < shufflePlayersArr.length; i++) {
+        if (shufflePlayersArr[i] === user.id) {
+          shufflePlayersArr.splice(i, 1)
+          return
+        }
+      }
+
+      if (players.size === 0) {
+        store.state.rooms.splice(Number(roomId.value - 1), 1)
+      }
+    }
+
+    onBeforeRouteLeave(() => {
+      exitRoom()
+    })
+
     return {
       room,
       players,
@@ -172,7 +197,8 @@ export default defineComponent({
       selectUndo,
       selectRedo,
       selectColor,
-      rangeBold
+      rangeBold,
+      exitRoom
     }
   }
 })

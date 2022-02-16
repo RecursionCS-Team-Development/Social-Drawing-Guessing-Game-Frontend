@@ -7,7 +7,7 @@ export interface Room {
   entryNum: number
   level: string
   round: number
-  players: Player[]
+  playersHash: Map<string, Player>
   chatLog: Chat[]
   link: string
 
@@ -16,7 +16,7 @@ export interface Room {
   getEntryNum(): number
   getLevel(): string
   getRound(): number
-  getPlayers(): Player[]
+  getPlayersHash(): Map<string, Player>
   getChatLog(): Chat[]
   getLink(): string
 }

@@ -7,6 +7,7 @@ export interface RoomHash {
   mode: string
   level: string
   round: number
-  players: Player[]
+  playersId: string[]
   link: string
+  playersHash: Map<string, Player>
 }

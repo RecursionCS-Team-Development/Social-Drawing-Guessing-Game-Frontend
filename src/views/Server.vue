@@ -12,6 +12,7 @@
           <div class="col" v-for="(room, index) in roomsStore" :key="index">
             <router-link
               :to="room.getLink()"
+              @click="room.phaseAction(user)"
               tag="div"
               class="card rounded routerLink"
             >
@@ -21,7 +22,7 @@
                 <p class="mb-1">{{ room.getLevel() }}</p>
                 <p class="mb-1">{{ room.getRound() }}</p>
                 <p class="card-text text-end mt-sm-2">
-                  {{ room.getPlayers().length }} / {{ room.getEntryNum() }}
+                  {{ room.getPlayersHash().size }} / {{ room.getEntryNum() }}
                 </p>
               </div>
             </router-link>
@@ -131,7 +132,6 @@ import { useStore } from '../store'
 
 import ConfirmButton from '../components/common/ConfirmButton.vue'
 import CancelButton from '../components/common/CancelButton.vue'
-import DrawingApiService from '../services/drawingApiService'
 
 import { User } from '../model/user'
 import { RoomHash } from '../interface/roomHash'
@@ -156,8 +156,9 @@ export default defineComponent({
       mode: '絵当てゲーム',
       level: 'easy',
       round: 3,
-      players: [],
-      link: '/room/' + Number(store.getters.rooms.length + 1)
+      playersId: [],
+      link: '/room/' + Number(store.getters.rooms.length + 1),
+      playersHash: new Map<string, Player>()
     })
 
     let showModal = ref(false)
@@ -255,7 +256,8 @@ export default defineComponent({
       if (roomHash.name === '') inputs[0].alert = true
       else {
         showModal.value = false
-        roomHash.players.push(new Player(user))
+        roomHash.playersId.push(user.id)
+        roomHash.playersHash.set(user.id, new Player(user))
         store.commit('addRoom', roomHash)
         router.push({
           name: 'Room',
@@ -280,7 +282,6 @@ export default defineComponent({
     })
 
     return {
-      roomHash,
       user,
       showModal,
       inputs,

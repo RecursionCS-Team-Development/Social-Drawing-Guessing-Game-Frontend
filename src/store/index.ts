@@ -25,7 +25,7 @@ export const store = createStore<State>({
       name: '',
       mail: '',
       password: '',
-      id: '',
+      id: '123',
       img: 'https://4.bp.blogspot.com/-bTipX3Vmpts/Wn1ZgUbOHXI/AAAAAAABKM4/b31Jvq8aWssiswuiO19BAJmmAC5WAzXwACLcBGAs/s800/character_boy_normal.png',
       profile: '',
       twitterAccount: '',
@@ -35,7 +35,7 @@ export const store = createStore<State>({
     rooms: []
   },
   getters: {
-    rooms: function (state) {
+    rooms: function (state): HitPictureRoom[] {
       return state.rooms
     }
   },
@@ -123,8 +123,9 @@ export const store = createStore<State>({
               mode: room.mode,
               level: room.level,
               round: room.round,
-              players: [],
-              link: '/room/' + Number(state.rooms.length + 1)
+              playersId: [],
+              link: '/room/' + Number(state.rooms.length + 1),
+              playersHash: new Map<string, Player>()
             }) as RoomHash
 
             for (const member of room.members) {
@@ -132,7 +133,7 @@ export const store = createStore<State>({
                 name: member.user.username,
                 mail: member.user.email,
                 password: '',
-                id: member.user.id,
+                id: String(member.user.id),
                 img: 'https://4.bp.blogspot.com/-bTipX3Vmpts/Wn1ZgUbOHXI/AAAAAAABKM4/b31Jvq8aWssiswuiO19BAJmmAC5WAzXwACLcBGAs/s800/character_boy_normal.png',
                 profile: '',
                 twitterAccount: '',
@@ -140,7 +141,8 @@ export const store = createStore<State>({
                 accessToken: ''
               }) as User
 
-              roomHash.players.push(new Player(user))
+              roomHash.playersId.push(user.id)
+              roomHash.playersHash.set(user.id, new Player(user))
             }
 
             commit('addRoom', roomHash)
