@@ -11,7 +11,7 @@ export class HitPictureRoom extends HitPictureGame implements Room {
   public entryNum: number
   public level: string
   public round: number
-  public players: Player[]
+  public playersHash: Map<string, Player>
   public chatLog: Chat[]
   public link: string
 
@@ -21,8 +21,9 @@ export class HitPictureRoom extends HitPictureGame implements Room {
     entryNum: number,
     level: string,
     round: number,
-    players: Player[],
-    link: string
+    playersHash: Map<string, Player>,
+    link: string,
+    players: Player[]
   ) {
     super(players)
     this.name = name
@@ -30,7 +31,7 @@ export class HitPictureRoom extends HitPictureGame implements Room {
     this.entryNum = entryNum
     this.level = level
     this.round = round
-    this.players = players
+    this.playersHash = playersHash
     this.chatLog = []
     this.link = link
   }
@@ -59,8 +60,8 @@ export class HitPictureRoom extends HitPictureGame implements Room {
     return this.round
   }
 
-  public getPlayers(): Player[] {
-    return this.players
+  public getPlayersHash(): Map<string, Player> {
+    return this.playersHash
   }
 
   public getChatLog(): Chat[] {
@@ -72,17 +73,21 @@ export class HitPictureRoom extends HitPictureGame implements Room {
   }
 
   public validSetPlayer(): boolean {
-    return this.entryNum == this.players.length
+    return this.entryNum == this.playersHash.size
   }
 
-  // shufflePlayers[]からreturn
+  // playersHashからreturn
   public getDrawerPlayer(): Player {
-    if (this.currRound > this.shufflePlayers.length) {
-      return this.shufflePlayers[
-        (this.currRound % this.shufflePlayers.length) - 1
-      ]
+    if (this.currRound > this.shufflePlayersArr.length) {
+      return this.playersHash.get(
+        this.shufflePlayersArr[
+          (this.currRound % this.shufflePlayersArr.length) - 1
+        ].id
+      ) as Player
     }
-    return this.shufflePlayers[this.currRound - 1]
+    return this.playersHash.get(
+      this.shufflePlayersArr[this.currRound - 1].id
+    ) as Player
   }
 
   public getTheme(): string {
@@ -95,18 +100,20 @@ export class HitPictureRoom extends HitPictureGame implements Room {
   public addPlayer(player: Player | User | string): void {
     if (!this.validSetPlayer()) {
       if (player instanceof Player) {
-        this.players.push(player)
-        this.shufflePlayers.push(player)
+        this.shufflePlayersArr.push(player)
+        this.playersHash.set(player.id, player)
       } else if (player instanceof User) {
-        this.players.push(new Player(player))
-        this.shufflePlayers.push(new Player(player))
+        this.shufflePlayersArr.push(new Player(player))
+        this.playersHash.set(player.id, new Player(player))
       } else if (typeof player === 'string') {
         const jsonPlayer: Player = new Player(JSON.parse(player))
-        this.players.push(jsonPlayer)
-        this.shufflePlayers.push(jsonPlayer)
+        this.shufflePlayersArr.push(jsonPlayer)
+        this.playersHash.set(jsonPlayer.id, jsonPlayer)
       } else {
-        this.players.push(new Player(player))
-        this.shufflePlayers.push(new Player(player))
+        const playerMold: User = player
+
+        this.shufflePlayersArr.push(new Player(player))
+        this.playersHash.set(playerMold.id, new Player(playerMold))
       }
 
       if (this.validSetPlayer()) {
@@ -133,7 +140,7 @@ export class HitPictureRoom extends HitPictureGame implements Room {
     const sender: Player = this.getPlayerById(id)
     const hiraMessage = this.kanaToHira(message)
     const hiraTheme = this.kanaToHira(this.currTheme)
-    if (hiraMessage === hiraTheme && sender != this.getDrawerPlayer()) {
+    if (hiraMessage === hiraTheme && sender.id != this.getDrawerPlayer().id) {
       alert('正解')
       this.isAnswer = true
       this.evaluateHitPicture(sender)
@@ -147,13 +154,8 @@ export class HitPictureRoom extends HitPictureGame implements Room {
     console.log('絵をセーブ')
   }
 
-  // todo O(1)でするためにplayer[]をhashにする
   public getPlayerById(id: string): Player {
-    for (let i = 0; i < this.players.length; i++) {
-      if (this.players[i].id === id) return this.players[i]
-    }
-
-    return this.players[0]
+    return this.playersHash.get(id) as Player
   }
 
   public evaluateHitPicture(ansPlayer: Player): void {
@@ -189,13 +191,13 @@ export class HitPictureRoom extends HitPictureGame implements Room {
   }
 
   public sortScore(): Player[] {
-    const tempPlayers: Player[] = Array.from(this.players)
-    tempPlayers.sort((a, b) => {
+    const clone = Array.from(this.playersHash.values())
+    clone.sort((a, b) => {
       if (a.score > b.score) return -1
       if (a.score < b.score) return 1
       return 0
     })
-    return tempPlayers
+    return clone
   }
 
   public displayPlayerName(players: Player[]): string {
@@ -209,13 +211,13 @@ export class HitPictureRoom extends HitPictureGame implements Room {
   public shufflePlayer(): void {
     const newThemeList: Player[] = []
 
-    while (this.shufflePlayers.length > 0) {
-      const l = this.shufflePlayers.length
+    while (this.shufflePlayersArr.length > 0) {
+      const l = this.shufflePlayersArr.length
       const random = Math.floor(Math.random() * l)
-      newThemeList.push(this.shufflePlayers[random])
-      this.shufflePlayers.splice(random, 1)
+      newThemeList.push(this.shufflePlayersArr[random])
+      this.shufflePlayersArr.splice(random, 1)
     }
-    this.shufflePlayers = newThemeList
+    this.shufflePlayersArr = newThemeList
   }
 
   public gameStart(): void {

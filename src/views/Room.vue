@@ -107,8 +107,9 @@ export default defineComponent({
 
     const store = useStore()
     let room: HitPictureRoom = store.state.rooms[Number(roomId.value - 1)]
+    let players: Map<string, Player> = room.getPlayersHash()
     let user: User = store.state.user
-    let players: Player[] = room.getPlayers()
+
     const user2 = new User(
       'ユーザー2',
       '@gmail.com',
@@ -162,14 +163,17 @@ export default defineComponent({
     }
 
     const exitRoom = () => {
-      for (let i = 0; i < room.players.length; i++) {
-        if (room.players[i].id === user.id) {
-          room.players.splice(i, 1)
-          if (room.players.length === 0) {
-            store.state.rooms.splice(Number(roomId.value - 1), 1)
-          }
+      players.delete(user.id)
+      let shufflePlayersArr = room.getShufflePlayersArr()
+      for (let i = 0; i < shufflePlayersArr.length; i++) {
+        if (shufflePlayersArr[i].id === user.id) {
+          shufflePlayersArr.splice(i, 1)
           return
         }
+      }
+
+      if (players.size === 0) {
+        store.state.rooms.splice(Number(roomId.value - 1), 1)
       }
     }
 

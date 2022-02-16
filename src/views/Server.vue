@@ -22,7 +22,7 @@
                 <p class="mb-1">{{ room.getLevel() }}</p>
                 <p class="mb-1">{{ room.getRound() }}</p>
                 <p class="card-text text-end mt-sm-2">
-                  {{ room.getPlayers().length }} / {{ room.getEntryNum() }}
+                  {{ room.getPlayersHash().size }} / {{ room.getEntryNum() }}
                 </p>
               </div>
             </router-link>
@@ -157,7 +157,8 @@ export default defineComponent({
       level: 'easy',
       round: 3,
       players: [],
-      link: '/room/' + Number(store.getters.rooms.length + 1)
+      link: '/room/' + Number(store.getters.rooms.length + 1),
+      playersHash: new Map<string, Player>()
     })
 
     let showModal = ref(false)
@@ -256,6 +257,7 @@ export default defineComponent({
       else {
         showModal.value = false
         roomHash.players.push(new Player(user))
+        roomHash.playersHash.set(user.id, new Player(user))
         store.commit('addRoom', roomHash)
         router.push({
           name: 'Room',
@@ -280,7 +282,6 @@ export default defineComponent({
     })
 
     return {
-      roomHash,
       user,
       showModal,
       inputs,

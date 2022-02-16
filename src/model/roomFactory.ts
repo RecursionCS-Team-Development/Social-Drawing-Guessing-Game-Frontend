@@ -10,8 +10,9 @@ export class RoomFactory {
         room.entryNum,
         room.level,
         room.round,
-        room.players,
-        room.link
+        room.playersHash,
+        room.link,
+        room.players
       )
     }
     return new HitPictureRoom(
@@ -20,8 +21,9 @@ export class RoomFactory {
       room.entryNum,
       room.level,
       room.round,
-      room.players,
-      room.link
+      room.playersHash,
+      room.link,
+      room.players
     )
   }
 }

@@ -9,4 +9,5 @@ export interface RoomHash {
   round: number
   players: Player[]
   link: string
+  playersHash: Map<string, Player>
 }

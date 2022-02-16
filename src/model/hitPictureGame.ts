@@ -3,7 +3,7 @@ import { dictionary } from '@/config/dictionary'
 
 export class HitPictureGame {
   protected themeList: string[]
-  protected shufflePlayers: Player[]
+  protected shufflePlayersArr: Player[]
   protected currRound: number
   protected currTheme: string
   protected gamePhase: Phase
@@ -19,7 +19,7 @@ export class HitPictureGame {
   protected DRAWER_SCORE: number
   constructor(players: Player[]) {
     this.themeList = dictionary
-    this.shufflePlayers = Array.from(players)
+    this.shufflePlayersArr = Array.from(players)
     this.currRound = 1
     this.currTheme = ''
     this.gamePhase = 'ready'
@@ -62,8 +62,12 @@ export class HitPictureGame {
     this.themeList = newThemeList
   }
 
-  public getShufflePlayers(): Player[] {
-    return this.shufflePlayers
+  public getShufflePlayersArr(): Player[] {
+    return this.shufflePlayersArr
+  }
+
+  public setShufflePlayersArr(shufflePlayersArr: Player[]): void {
+    this.shufflePlayersArr = shufflePlayersArr
   }
 }
 

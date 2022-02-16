@@ -35,7 +35,7 @@ export const store = createStore<State>({
     rooms: []
   },
   getters: {
-    rooms: function (state) {
+    rooms: function (state): HitPictureRoom[] {
       return state.rooms
     }
   },
@@ -124,7 +124,8 @@ export const store = createStore<State>({
               level: room.level,
               round: room.round,
               players: [],
-              link: '/room/' + Number(state.rooms.length + 1)
+              link: '/room/' + Number(state.rooms.length + 1),
+              playersHash: new Map<string, Player>()
             }) as RoomHash
 
             for (const member of room.members) {
@@ -141,6 +142,7 @@ export const store = createStore<State>({
               }) as User
 
               roomHash.players.push(new Player(user))
+              roomHash.playersHash.set(user.id, new Player(user))
             }
 
             commit('addRoom', roomHash)
